@@ -1,132 +1,151 @@
-const { validationResult } = require('express-validator');
-const Activity = require('../models/Activity');
-const { calculateCO2 } = require('../lib/carbonFactors');
+import mongoose from 'mongoose'
+import { calculateCO2 } from '../lib/carbonFactors.js'
+import Activity from '../models/Activity.js'
+import { AppError } from '../lib/AppError.js'
 
-// India average monthly carbon footprint in kg CO₂
-const INDIA_MONTHLY_AVERAGE_KG = 93;
-
-// ── POST /api/activities ─────────────────────────────────────────────────────
-const createActivity = async (req, res) => {
+/**
+ * Create a new activity for the logged-in user
+ * @param {object} req - Express request object
+ * @param {object} res - Express response object
+ * @param {function} next - Express next middleware function
+ */
+export const createActivity = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ message: 'Validation failed', errors: errors.array() });
-    }
-
-    const { category, type, quantity, date } = req.body;
-
-    const co2 = calculateCO2(category, type, quantity);
-    if (co2 === null) {
-      return res.status(400).json({
-        message: `Unknown activity type "${type}" for category "${category}". Check /api/factors for valid types.`,
-      });
-    }
-
+    const { category, type, quantity, date } = req.body
+    const co2 = calculateCO2(category, type, quantity)
     const activity = await Activity.create({
-      userId: req.user._id,
+      userId: req.user.id,
       category,
       type,
       quantity,
       co2,
-      date: date ? new Date(date) : undefined,
-    });
-
-    res.status(201).json({ message: 'Activity logged successfully.', activity });
-  } catch (error) {
-    console.error('Create activity error:', error);
-    res.status(500).json({ message: 'Server error while logging activity.' });
+      ...(date && { date: new Date(date) }),
+    })
+    res.status(201).json({ success: true, data: activity, activity })
+  } catch (err) {
+    next(err)
   }
-};
+}
 
-// ── GET /api/activities ──────────────────────────────────────────────────────
-const getActivities = async (req, res) => {
+/**
+ * Get all activities for the logged-in user
+ * @param {object} req - Express request object
+ * @param {object} res - Express response object
+ * @param {function} next - Express next middleware function
+ */
+export const getActivities = async (req, res, next) => {
   try {
-    const activities = await Activity.find({ userId: req.user._id })
+    const activities = await Activity.find({ userId: req.user.id })
       .sort({ date: -1 })
-      .limit(100);
-
-    res.json({ count: activities.length, activities });
-  } catch (error) {
-    console.error('Get activities error:', error);
-    res.status(500).json({ message: 'Server error while fetching activities.' });
+      .limit(100)
+    res.json({
+      success: true,
+      count: activities.length,
+      activities,
+      data: activities,
+    })
+  } catch (err) {
+    next(err)
   }
-};
+}
 
-// ── GET /api/activities/summary ──────────────────────────────────────────────
-const getSummary = async (req, res) => {
+/**
+ * Get aggregated carbon footprint summary for the user
+ * @param {object} req - Express request object
+ * @param {object} res - Express response object
+ * @param {function} next - Express next middleware function
+ */
+export const getSummary = async (req, res, next) => {
   try {
-    const now = new Date();
+    const userId = req.user.id
+    const now = new Date()
+    const weekStart = new Date(now - 7 * 24 * 60 * 60 * 1000)
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
 
-    // Week boundary (last 7 days)
-    const weekStart = new Date(now);
-    weekStart.setDate(weekStart.getDate() - 7);
-    weekStart.setHours(0, 0, 0, 0);
+    const [weekData, monthData, breakdown, trend] = await Promise.all([
+      Activity.aggregate([
+        {
+          $match: {
+            userId: new mongoose.Types.ObjectId(userId),
+            date: { $gte: weekStart },
+          },
+        },
+        { $group: { _id: null, total: { $sum: '$co2' } } },
+      ]),
+      Activity.aggregate([
+        {
+          $match: {
+            userId: new mongoose.Types.ObjectId(userId),
+            date: { $gte: monthStart },
+          },
+        },
+        { $group: { _id: null, total: { $sum: '$co2' } } },
+      ]),
+      Activity.aggregate([
+        {
+          $match: {
+            userId: new mongoose.Types.ObjectId(userId),
+            date: { $gte: monthStart },
+          },
+        },
+        { $group: { _id: '$category', total: { $sum: '$co2' } } },
+      ]),
+      Activity.aggregate([
+        {
+          $match: {
+            userId: new mongoose.Types.ObjectId(userId),
+            date: { $gte: weekStart },
+          },
+        },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
+            total: { $sum: '$co2' },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]),
+    ])
 
-    // Month boundary (1st of current month)
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const INDIA_MONTHLY_AVG = 93
+    const totalMonth = monthData[0]?.total || 0
 
-    // Fetch all activities needed for both ranges (pull from month start)
-    const allMonthActivities = await Activity.find({
-      userId: req.user._id,
-      date: { $gte: monthStart },
-    });
-
-    let totalCo2ThisWeek = 0;
-    let totalCo2ThisMonth = 0;
-    const breakdown = { travel: 0, food: 0, energy: 0, shopping: 0 };
-
-    for (const act of allMonthActivities) {
-      totalCo2ThisMonth += act.co2;
-      breakdown[act.category] = parseFloat(
-        ((breakdown[act.category] || 0) + act.co2).toFixed(4)
-      );
-      if (new Date(act.date) >= weekStart) {
-        totalCo2ThisWeek += act.co2;
-      }
+    const summaryPayload = {
+      totalCo2ThisWeek: Math.round((weekData[0]?.total || 0) * 10) / 10,
+      totalCo2ThisMonth: Math.round(totalMonth * 10) / 10,
+      savedVsAverage: Math.round((INDIA_MONTHLY_AVG - totalMonth) * 10) / 10,
+      breakdown: Object.fromEntries(
+        breakdown.map((b) => [b._id, Math.round(b.total * 10) / 10])
+      ),
+      weeklyTrend: trend.map((t) => ({ date: t._id, co2: t.total })),
     }
-
-    totalCo2ThisWeek = parseFloat(totalCo2ThisWeek.toFixed(4));
-    totalCo2ThisMonth = parseFloat(totalCo2ThisMonth.toFixed(4));
-
-    // Positive = user emitted LESS than average (good), negative = MORE
-    const savedVsAverage = parseFloat(
-      (INDIA_MONTHLY_AVERAGE_KG - totalCo2ThisMonth).toFixed(4)
-    );
 
     res.json({
-      totalCo2ThisWeek,
-      totalCo2ThisMonth,
-      breakdown,
-      savedVsAverage,
-    });
-  } catch (error) {
-    console.error('Get summary error:', error);
-    res.status(500).json({ message: 'Server error while calculating summary.' });
+      success: true,
+      data: summaryPayload,
+      ...summaryPayload,
+    })
+  } catch (err) {
+    next(err)
   }
-};
+}
 
-// ── DELETE /api/activities/:id ───────────────────────────────────────────────
-const deleteActivity = async (req, res) => {
+/**
+ * Delete a specific activity of the user after ownership validation
+ * @param {object} req - Express request object
+ * @param {object} res - Express response object
+ * @param {function} next - Express next middleware function
+ */
+export const deleteActivity = async (req, res, next) => {
   try {
-    const activity = await Activity.findOne({
-      _id: req.params.id,
-      userId: req.user._id,
-    });
-
-    if (!activity) {
-      return res.status(404).json({ message: 'Activity not found or not owned by you.' });
+    const activity = await Activity.findById(req.params.id)
+    if (!activity) return next(new AppError('Activity not found', 404))
+    if (activity.userId.toString() !== req.user.id) {
+      return next(new AppError('Not authorized', 403))
     }
-
-    await activity.deleteOne();
-    res.json({ message: 'Activity deleted successfully.' });
-  } catch (error) {
-    // Handle invalid ObjectId format
-    if (error.name === 'CastError') {
-      return res.status(400).json({ message: 'Invalid activity ID format.' });
-    }
-    console.error('Delete activity error:', error);
-    res.status(500).json({ message: 'Server error while deleting activity.' });
+    await activity.deleteOne()
+    res.json({ success: true, message: 'Activity deleted' })
+  } catch (err) {
+    next(err)
   }
-};
-
-module.exports = { createActivity, getActivities, getSummary, deleteActivity };
+}

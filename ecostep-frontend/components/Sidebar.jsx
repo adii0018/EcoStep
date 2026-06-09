@@ -23,7 +23,7 @@ export default function Sidebar() {
         {/* Logo */}
         <div className="flex items-center gap-2.5 px-2 mb-8">
           <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
-            <Leaf className="w-4.5 h-4.5 text-emerald-500" />
+            <Leaf className="w-4.5 h-4.5 text-emerald-500" aria-hidden="true" />
           </div>
           <span className="text-lg font-bold text-white tracking-tight">EcoStep</span>
         </div>
@@ -45,6 +45,7 @@ export default function Sidebar() {
               >
                 <Icon
                   className={cn("w-5 h-5", active ? "text-emerald-400" : "text-zinc-500")}
+                  aria-hidden="true"
                 />
                 {label}
               </Link>
@@ -64,7 +65,7 @@ export default function Sidebar() {
             onClick={logout}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4" aria-hidden="true" />
             Logout
           </button>
         </div>
@@ -83,7 +84,7 @@ export default function Sidebar() {
                 active ? "text-emerald-400" : "text-zinc-500 hover:text-zinc-300"
               )}
             >
-              <Icon className={cn("w-5 h-5", active ? "text-emerald-400" : "text-zinc-500")} />
+              <Icon className={cn("w-5 h-5", active ? "text-emerald-400" : "text-zinc-500")} aria-hidden="true" />
               {label}
             </Link>
           );
@@ -92,7 +93,7 @@ export default function Sidebar() {
           onClick={logout}
           className="flex-1 flex flex-col items-center justify-center py-3 text-xs font-medium text-zinc-500 hover:text-red-400 gap-1 transition-colors"
         >
-          <LogOut className="w-5 h-5 text-zinc-500" />
+          <LogOut className="w-5 h-5 text-zinc-500" aria-hidden="true" />
           Logout
         </button>
       </nav>

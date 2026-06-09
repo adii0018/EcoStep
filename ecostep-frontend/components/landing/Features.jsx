@@ -6,32 +6,32 @@ import { Leaf, Brain, BarChart, Users, Trophy, MapPin } from "lucide-react";
 export default function Features() {
   const features = [
     {
-      icon: <Leaf className="w-6 h-6 text-emerald-400" />,
+      icon: <Leaf className="w-6 h-6 text-emerald-400" aria-hidden="true" />,
       title: "Track Activities",
       description: "Log travel, food, energy and shopping in seconds",
     },
     {
-      icon: <Brain className="w-6 h-6 text-emerald-400" />,
+      icon: <Brain className="w-6 h-6 text-emerald-400" aria-hidden="true" />,
       title: "AI-Powered Tips",
       description: "Get personalized suggestions from Claude AI to reduce your footprint",
     },
     {
-      icon: <BarChart className="w-6 h-6 text-emerald-400" />,
+      icon: <BarChart className="w-6 h-6 text-emerald-400" aria-hidden="true" />,
       title: "Visual Dashboard",
       description: "Beautiful charts showing your weekly and monthly progress",
     },
     {
-      icon: <Users className="w-6 h-6 text-emerald-400" />,
+      icon: <Users className="w-6 h-6 text-emerald-400" aria-hidden="true" />,
       title: "Compare & Compete",
       description: "See how you compare to India and global averages",
     },
     {
-      icon: <Trophy className="w-6 h-6 text-emerald-400" />,
+      icon: <Trophy className="w-6 h-6 text-emerald-400" aria-hidden="true" />,
       title: "Weekly Challenges",
       description: "Fun eco-challenges to build sustainable habits",
     },
     {
-      icon: <MapPin className="w-6 h-6 text-emerald-400" />,
+      icon: <MapPin className="w-6 h-6 text-emerald-400" aria-hidden="true" />,
       title: "India-Specific Data",
       description: "Emission factors calibrated for Indian lifestyle and grid",
     },

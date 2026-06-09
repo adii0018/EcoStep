@@ -1,12 +1,6 @@
-/**
- * Carbon emission factors (kg CO₂ per unit).
- *
- * travel  → kg CO₂ per km
- * food    → kg CO₂ per meal
- * energy  → kg CO₂ per kWh / kg / hour (see label)
- * shopping → kg CO₂ per item
- */
-const carbonFactors = {
+import { AppError } from './AppError.js'
+
+const FACTORS = {
   travel: {
     'Car (petrol)': 0.18,
     'Car (diesel)': 0.16,
@@ -32,23 +26,36 @@ const carbonFactors = {
     Electronics: 30.0,
     Groceries: 0.5,
   },
-};
+}
 
 /**
- * Calculate kg CO₂ for a given activity.
- * @param {string} category - One of travel | food | energy | shopping
- * @param {string} type     - Sub-type within the category
- * @param {number} quantity - Amount (km / meals / kWh / items)
- * @returns {number|null}   - kg CO₂ or null if factor not found
+ * Calculate CO2 emissions for a given activity
+ * @param {string} category - Activity category (travel/food/energy/shopping)
+ * @param {string} type - Specific activity type
+ * @param {number} quantity - Amount (km/kg/units)
+ * @returns {number} CO2 in kg
+ * @throws {AppError} If category/type invalid or quantity negative
  */
-const calculateCO2 = (category, type, quantity) => {
-  const categoryFactors = carbonFactors[category];
-  if (!categoryFactors) return null;
+export const calculateCO2 = (category, type, quantity) => {
+  if (!category || !type) throw new AppError('Category and type required', 400)
+  if (quantity < 0) throw new AppError('Quantity cannot be negative', 400)
+  if (quantity === 0) return 0
+  const factor = FACTORS[category]?.[type]
+  if (!factor) throw new AppError(`Unknown activity type: ${type}`, 400)
+  return Math.round(quantity * factor * 100) / 100
+}
 
-  const factor = categoryFactors[type];
-  if (factor === undefined) return null;
+/**
+ * Get all available categories
+ * @returns {string[]} List of categories
+ */
+export const getAllCategories = () => Object.keys(FACTORS)
 
-  return parseFloat((quantity * factor).toFixed(4));
-};
+/**
+ * Get all types within a category
+ * @param {string} cat - The category name
+ * @returns {string[]} List of types
+ */
+export const getTypesForCategory = (cat) => Object.keys(FACTORS[cat] || {})
 
-module.exports = { carbonFactors, calculateCO2 };
+export { FACTORS }

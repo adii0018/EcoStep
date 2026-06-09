@@ -43,8 +43,33 @@ export default function WeeklyTrendChart({ data }) {
         <h3 className="text-white font-semibold text-lg">7-day CO₂ trend</h3>
         <p className="text-zinc-500 text-sm mb-6">Daily emissions this week</p>
       </div>
+
+      {/* Screen reader fallback data table */}
+      <div className="sr-only">
+        <table>
+          <caption>Carbon emissions by day of the week</caption>
+          <thead>
+            <tr>
+              <th scope="col">Day</th>
+              <th scope="col">Emissions (kg CO₂)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {chartData.map((d) => (
+              <tr key={d.name}>
+                <td>{d.name}</td>
+                <td>{d.value} kg</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       
-      <div className="flex-1 w-full min-h-0">
+      <div 
+        className="flex-1 w-full min-h-0"
+        role="img"
+        aria-label="Area chart showing daily CO2 emissions trend for this week from Monday to Sunday."
+      >
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={chartData}

@@ -1,5 +1,5 @@
-const Anthropic = require('@anthropic-ai/sdk');
-const Activity = require('../models/Activity');
+import Anthropic from '@anthropic-ai/sdk'
+import Activity from '../models/Activity.js'
 
 const FALLBACK_TIPS = [
   {
@@ -23,38 +23,42 @@ const FALLBACK_TIPS = [
     savingKg: 8.0,
     icon: '💡',
   },
-];
+]
 
-// ── POST /api/insights ───────────────────────────────────────────────────────
-const getInsights = async (req, res) => {
+/**
+ * Generate personalized or fallback sustainability tips for the user
+ * @param {object} req - Express request object
+ * @param {object} res - Express response object
+ * @param {function} next - Express next middleware function
+ */
+export const getInsights = async (req, res, next) => {
   try {
-    // Fetch last 7 days of activities
-    const since = new Date();
-    since.setDate(since.getDate() - 7);
+    const since = new Date()
+    since.setDate(since.getDate() - 7)
 
     const recentActivities = await Activity.find({
-      userId: req.user._id,
+      userId: req.user.id,
       date: { $gte: since },
-    }).sort({ date: -1 });
+    }).sort({ date: -1 })
 
     if (!recentActivities.length) {
       return res.json({
+        success: true,
         source: 'fallback',
         message: 'No recent activities found. Log some activities first for personalised tips.',
         tips: FALLBACK_TIPS,
-      });
+      })
     }
 
-    // Summarise activities for the prompt
     const summary = recentActivities.map((a) => ({
       category: a.category,
       type: a.type,
       quantity: a.quantity,
       co2: a.co2,
       date: a.date.toISOString().split('T')[0],
-    }));
+    }))
 
-    const totalCo2 = recentActivities.reduce((sum, a) => sum + a.co2, 0).toFixed(2);
+    const totalCo2 = recentActivities.reduce((sum, a) => sum + a.co2, 0).toFixed(2)
 
     const prompt = `You are an environmental sustainability coach. A user has logged the following carbon activities over the last 7 days:
 
@@ -72,38 +76,32 @@ Respond ONLY with a valid JSON array (no markdown fences, no extra text) in this
     "savingKg": 5.5,
     "icon": "🌱"
   }
-]`;
+]`
 
-    let tips;
+    let tips
 
     try {
-      const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
       const message = await client.messages.create({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: 1024,
         messages: [{ role: 'user', content: prompt }],
-      });
+      })
 
-      const rawText = message.content[0]?.text || '';
-
-      // Strip any accidental markdown fences
-      const cleaned = rawText.replace(/```json\n?|```\n?/g, '').trim();
-      tips = JSON.parse(cleaned);
+      const rawText = message.content[0]?.text || ''
+      const cleaned = rawText.replace(/```json\n?|```\n?/g, '').trim()
+      tips = JSON.parse(cleaned)
 
       if (!Array.isArray(tips) || tips.length === 0) {
-        throw new Error('Claude returned unexpected format');
+        throw new Error('Claude returned unexpected format')
       }
     } catch (claudeError) {
-      console.error('Claude API error — using fallback tips:', claudeError.message);
-      return res.json({ source: 'fallback', tips: FALLBACK_TIPS });
+      return res.json({ success: true, source: 'fallback', tips: FALLBACK_TIPS })
     }
 
-    res.json({ source: 'ai', tips });
-  } catch (error) {
-    console.error('Get insights error:', error);
-    res.status(500).json({ message: 'Server error while generating insights.' });
+    res.json({ success: true, source: 'ai', tips })
+  } catch (err) {
+    next(err)
   }
-};
-
-module.exports = { getInsights };
+}

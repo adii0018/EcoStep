@@ -1,37 +1,25 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+import jwt from 'jsonwebtoken'
+import User from '../models/User.js'
+import { AppError } from '../lib/AppError.js'
 
-const protect = async (req, res, next) => {
+/**
+ * Middleware to protect routes and verify the JWT authorization token
+ * @param {object} req - Express request object
+ * @param {object} res - Express response object
+ * @param {function} next - Express next middleware function
+ */
+export const protect = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'No token provided. Authorisation denied.' });
+    const token = req.headers.authorization?.split(' ')[1]
+    if (!token) throw new AppError('No token provided', 401)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    req.user = await User.findById(decoded.id).select('-password')
+    if (!req.user) throw new AppError('User not found', 401)
+    next()
+  } catch (err) {
+    if (err instanceof AppError) {
+      return next(err)
     }
-
-    const token = authHeader.split(' ')[1];
-
-    let decoded;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (err) {
-      const message =
-        err.name === 'TokenExpiredError' ? 'Token has expired.' : 'Invalid token.';
-      return res.status(401).json({ message });
-    }
-
-    // Attach user to request (without password)
-    const user = await User.findById(decoded.id).select('-password');
-    if (!user) {
-      return res.status(401).json({ message: 'User not found. Authorisation denied.' });
-    }
-
-    req.user = user;
-    next();
-  } catch (error) {
-    console.error('Auth middleware error:', error);
-    res.status(500).json({ message: 'Internal server error during authentication.' });
+    next(new AppError('Invalid token', 401))
   }
-};
-
-module.exports = protect;
+}

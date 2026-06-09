@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+import mongoose from 'mongoose'
+import bcrypt from 'bcryptjs'
 
 const userSchema = new mongoose.Schema(
   {
@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Password is required'],
       minlength: [6, 'Password must be at least 6 characters'],
-      select: false, // never return password in queries by default
+      select: false,
     },
     createdAt: {
       type: Date,
@@ -29,19 +29,21 @@ const userSchema = new mongoose.Schema(
     },
   },
   { timestamps: false }
-);
+)
+
+
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  const salt = await bcrypt.genSalt(12);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
-});
+  if (!this.isModified('password')) return next()
+  const salt = await bcrypt.genSalt(12)
+  this.password = await bcrypt.hash(this.password, salt)
+  next()
+})
 
 // Instance method — compare plain text password with hash
 userSchema.methods.comparePassword = async function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
-};
+  return bcrypt.compare(candidatePassword, this.password)
+}
 
-module.exports = mongoose.model('User', userSchema);
+export default mongoose.model('User', userSchema)

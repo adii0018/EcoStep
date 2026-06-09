@@ -65,8 +65,33 @@ export default function BreakdownChart({ data }) {
         <h3 className="text-white font-semibold text-lg">Emissions by category</h3>
         <p className="text-zinc-500 text-sm mb-4">This week · click a bar to see details</p>
       </div>
+
+      {/* Screen reader fallback data table */}
+      <div className="sr-only">
+        <table>
+          <caption>Carbon emissions breakdown by category</caption>
+          <thead>
+            <tr>
+              <th scope="col">Category</th>
+              <th scope="col">Emissions (kg CO₂)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {chartData.map((c) => (
+              <tr key={c.name}>
+                <td>{c.name}</td>
+                <td>{c.value} kg</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       
-      <div className="flex-1 w-full min-h-0">
+      <div 
+        className="flex-1 w-full min-h-0"
+        role="img"
+        aria-label="Horizontal bar chart showing carbon footprint breakdown by category: Travel, Food, Energy, and Shopping."
+      >
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             layout="vertical"

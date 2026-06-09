@@ -50,48 +50,60 @@ export default function LoginForm({ onError }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {/* Live region for form submission announcements */}
+      <div className="sr-only" role="status" aria-live="polite">
+        {isSubmitting ? "Signing you in, please wait..." : ""}
+      </div>
+
       <div className="space-y-1">
-        <label className="text-sm font-medium text-zinc-400 block mb-1">Email address</label>
+        <label htmlFor="email-input" className="text-sm font-medium text-zinc-400 block mb-1">Email address</label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Mail className="h-5 w-5 text-zinc-500" />
           </div>
           <input
+            id="email-input"
             {...register("email")}
             type="email"
             placeholder="you@example.com"
             autoComplete="email"
             disabled={isSubmitting}
+            aria-invalid={errors.email ? "true" : "false"}
+            aria-describedby={errors.email ? "email-error" : undefined}
             className={`block w-full pl-10 pr-3 py-3 bg-white/5 border ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/10 focus:border-emerald-500 focus:ring-emerald-500'} text-white placeholder:text-zinc-600 rounded-xl focus:outline-none focus:ring-1 transition-colors`}
           />
         </div>
-        {errors.email && <p className="text-xs text-red-400 mt-1">{errors.email.message}</p>}
+        {errors.email && <p id="email-error" className="text-xs text-red-400 mt-1">{errors.email.message}</p>}
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm font-medium text-zinc-400 block mb-1">Password</label>
+        <label htmlFor="password-input" className="text-sm font-medium text-zinc-400 block mb-1">Password</label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Lock className="h-5 w-5 text-zinc-500" />
           </div>
           <input
+            id="password-input"
             {...register("password")}
             type={showPassword ? "text" : "password"}
             placeholder="••••••••"
             autoComplete="current-password"
             disabled={isSubmitting}
+            aria-invalid={errors.password ? "true" : "false"}
+            aria-describedby={errors.password ? "password-error" : undefined}
             className={`block w-full pl-10 pr-10 py-3 bg-white/5 border ${errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/10 focus:border-emerald-500 focus:ring-emerald-500'} text-white placeholder:text-zinc-600 rounded-xl focus:outline-none focus:ring-1 transition-colors`}
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             disabled={isSubmitting}
+            aria-label={showPassword ? "Hide password" : "Show password"}
             className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-500 hover:text-zinc-300 transition-colors"
           >
             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
           </button>
         </div>
-        {errors.password && <p className="text-xs text-red-400 mt-1">{errors.password.message}</p>}
+        {errors.password && <p id="password-error" className="text-xs text-red-400 mt-1">{errors.password.message}</p>}
       </div>
 
       <div className="flex justify-end pt-1 pb-2">

@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose'
 
-const activitySchema = new mongoose.Schema(
+const ActivitySchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -38,9 +38,10 @@ const activitySchema = new mongoose.Schema(
     },
   },
   { timestamps: false }
-);
+)
 
-// Compound index for efficient per-user date-sorted queries
-activitySchema.index({ userId: 1, date: -1 });
+ActivitySchema.index({ userId: 1, date: -1 })
+ActivitySchema.index({ userId: 1, category: 1 })
+ActivitySchema.index({ userId: 1, date: -1, category: 1 })
 
-module.exports = mongoose.model('Activity', activitySchema);
+export default mongoose.model('Activity', ActivitySchema)

@@ -12,6 +12,14 @@ export default function AppLayout({ children }) {
 
   return (
     <div className="flex min-h-screen bg-zinc-950 text-white dark selection:bg-emerald-500/30 relative overflow-hidden">
+      <a 
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 
+                   focus:left-4 focus:z-50 focus:px-4 focus:py-2 
+                   focus:bg-emerald-500 focus:text-white focus:rounded-lg"
+      >
+        Skip to main content
+      </a>
       {/* Background pattern */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-emerald-500/5 rounded-full blur-[120px]" />
@@ -20,7 +28,7 @@ export default function AppLayout({ children }) {
 
       <Sidebar />
       {/* Main content — offset by sidebar width on desktop */}
-      <main className="flex-1 md:ml-60 pb-20 md:pb-0 relative z-10">
+      <main id="main-content" className="flex-1 md:ml-60 pb-20 md:pb-0 relative z-10">
         <div className="max-w-6xl mx-auto p-4 md:p-8">{children}</div>
       </main>
     </div>

@@ -1,49 +1,62 @@
-const express = require('express');
-const { body, param } = require('express-validator');
-const protect = require('../middleware/auth');
-const {
+import express from 'express'
+import { body, param, validationResult } from 'express-validator'
+import { protect } from '../middleware/auth.js'
+import {
   createActivity,
   getActivities,
   getSummary,
   deleteActivity,
-} = require('../controllers/activityController');
-const { carbonFactors } = require('../lib/carbonFactors');
+} from '../controllers/activityController.js'
+import { FACTORS } from '../lib/carbonFactors.js'
 
-const router = express.Router();
+const router = express.Router()
 
-// All routes below require a valid JWT
-router.use(protect);
+/**
+ * Route validator error handler middleware
+ * @param {object} req - Express request object
+ * @param {object} res - Express response object
+ * @param {function} next - Express next middleware function
+ */
+const handleValidation = (req, res, next) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      errors: errors.array().map((e) => ({ field: e.path, message: e.msg })),
+    })
+  }
+  next()
+}
 
-// Validation for creating an activity
-const createActivityValidation = [
+const validateActivity = [
   body('category')
     .isIn(['travel', 'food', 'energy', 'shopping'])
-    .withMessage('Category must be one of: travel, food, energy, shopping'),
-  body('type').trim().notEmpty().withMessage('Type is required'),
+    .withMessage('Invalid category'),
+  body('type')
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('Type is required'),
   body('quantity')
-    .isFloat({ min: 0.001 })
-    .withMessage('Quantity must be a positive number'),
-];
+    .isFloat({ min: 0, max: 100000 })
+    .withMessage('Quantity must be between 0 and 100000'),
+]
 
-// ── GET /api/activities/summary  (must be BEFORE /:id) ────────────────────────
-router.get('/summary', getSummary);
+const validateDelete = [
+  param('id').isMongoId().withMessage('Invalid activity ID'),
+]
 
-// ── GET /api/activities ───────────────────────────────────────────────────────
-router.get('/', getActivities);
+// All routes require authentication
+router.use(protect)
 
-// ── POST /api/activities ──────────────────────────────────────────────────────
-router.post('/', createActivityValidation, createActivity);
+router.get('/summary', getSummary)
+router.get('/', getActivities)
+router.post('/', validateActivity, handleValidation, createActivity)
+router.delete('/:id', validateDelete, handleValidation, deleteActivity)
 
-// ── DELETE /api/activities/:id ────────────────────────────────────────────────
-router.delete(
-  '/:id',
-  [param('id').isMongoId().withMessage('Invalid activity ID')],
-  deleteActivity
-);
-
-// ── GET /api/activities/factors  (convenience — returns all valid factors) ────
+// Convenience route for factors list
 router.get('/factors', (_req, res) => {
-  res.json({ carbonFactors });
-});
+  res.json({ success: true, carbonFactors: FACTORS })
+})
 
-module.exports = router;
+export default router

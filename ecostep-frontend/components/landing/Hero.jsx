@@ -42,7 +42,7 @@ export default function Hero() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              🌍 Join 10,000+ eco-conscious users
+              <span aria-hidden="true">🌍</span> Join 10,000+ eco-conscious users
             </div>
           </motion.div>
 
@@ -73,13 +73,13 @@ export default function Hero() {
               href="/register"
               className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-8 py-4 rounded-full font-semibold transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(16,185,129,0.4)] w-full sm:w-auto justify-center"
             >
-              Start for free <ArrowRight className="w-5 h-5" />
+              Start for free <ArrowRight className="w-5 h-5" aria-hidden="true" />
             </Link>
             <a
               href="#how-it-works"
               className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-8 py-4 rounded-full font-semibold transition-all hover:scale-105 active:scale-95 w-full sm:w-auto justify-center"
             >
-              <Play className="w-5 h-5 fill-white/80" /> See how it works
+              <Play className="w-5 h-5 fill-white/80" aria-hidden="true" /> See how it works
             </a>
           </motion.div>
 
@@ -94,6 +94,7 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.4, ease: "easeOut" }}
           className="mt-16 relative max-w-5xl mx-auto"
+          aria-hidden="true"
         >
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent z-10 pointer-events-none" />
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-2 shadow-2xl relative overflow-hidden">
