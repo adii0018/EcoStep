@@ -1,6 +1,6 @@
 # 🌱 EcoStep Frontend
 
-Next.js 14 frontend for **EcoStep** — a personal carbon footprint tracker. Connects to the Express.js backend at `http://localhost:5000`.
+Next.js 14 frontend for **EcoStep** — a personal carbon footprint tracker. Connects to the Express.js backend at `https://ecostep-backend.onrender.com`.
 
 ---
 
@@ -28,7 +28,7 @@ Make sure the **EcoStep backend** is running first:
 ```bash
 # In the ecostep-backend/ directory:
 npm run dev
-# Server will be at http://localhost:5000
+# Server will be at https://ecostep-backend.onrender.com
 ```
 
 ### 2. Install and Run Frontend
@@ -46,7 +46,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 One env var is preconfigured in `.env.local`:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_API_URL=https://ecostep-backend.onrender.com/api
 ```
 
 ---

@@ -29,7 +29,7 @@ export default function LoginForm({ onError }) {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/login`, data);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'https://ecostep-backend.onrender.com/api'}/auth/login`, data);
       
       const { token, user } = response.data;
       

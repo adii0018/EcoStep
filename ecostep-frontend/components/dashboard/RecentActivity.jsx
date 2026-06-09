@@ -29,7 +29,7 @@ export default function RecentActivity({ activities, onDeleted }) {
     try {
       setDeletingId(id);
       const token = Cookies.get("ecostep_token");
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/activities/${id}`, {
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL || 'https://ecostep-backend.onrender.com/api'}/activities/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success("Activity deleted");

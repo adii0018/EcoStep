@@ -63,7 +63,7 @@ export default function DashboardClient() {
     try {
       const token = Cookies.get("ecostep_token");
       const { data } = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/activities/summary`,
+        `${process.env.NEXT_PUBLIC_API_URL || "https://ecostep-backend.onrender.com/api"}/activities/summary`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
