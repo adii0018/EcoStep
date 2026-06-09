@@ -1,24 +1,42 @@
 "use client";
 
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { categoryMeta } from "@/lib/carbonFactors";
+import { motion } from "framer-motion";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
-const CustomTooltip = ({ active, payload, label }) => {
+const COLORS = {
+  Travel: "#f97316", // orange-500
+  Food: "#f59e0b",   // amber-500
+  Energy: "#3b82f6", // blue-500
+  Shopping: "#a855f7",// purple-500
+};
+
+// India averages for dummy tooltip info
+const INDIA_AVG = {
+  Travel: 12.5,
+  Food: 6.2,
+  Energy: 4.8,
+  Shopping: 2.1,
+};
+
+const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const value = payload[0].value;
+    const avg = INDIA_AVG[data.name] || 0;
+    
+    // Calculate percentage of total (dummy total derived roughly)
+    const total = 18.4; // using the mock total from MetricCards
+    const pct = ((value / total) * 100).toFixed(0);
+
     return (
-      <div className="bg-white border border-gray-100 rounded-xl shadow-lg px-3 py-2">
-        <p className="text-xs text-gray-500 mb-0.5">{label}</p>
-        <p className="text-sm font-semibold text-gray-900">
-          {payload[0].value.toFixed(2)} kg CO₂
+      <div className="bg-zinc-900 border border-zinc-700 p-3 rounded-lg shadow-xl">
+        <p className="text-white font-medium mb-1 flex items-center gap-2">
+          <span className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[data.name] }} />
+          {data.name}: {value} kg
+        </p>
+        <p className="text-xs text-zinc-400">{pct}% of your total</p>
+        <p className="text-xs text-zinc-500 mt-1 pt-1 border-t border-zinc-800">
+          India avg: {avg} kg
         </p>
       </div>
     );
@@ -26,74 +44,54 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-export default function BreakdownChart({ summary, loading }) {
-  if (loading) {
-    return (
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold text-gray-700">
-            Emissions Breakdown
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-44 flex items-center justify-center">
-            <div className="animate-pulse flex gap-3 items-end h-32">
-              {[70, 50, 90, 40].map((h, i) => (
-                <div
-                  key={i}
-                  className="w-12 bg-gray-100 rounded-t-md"
-                  style={{ height: `${h}%` }}
-                />
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+export default function BreakdownChart({ data }) {
+  const breakdown = data || { travel: 0, food: 0, energy: 0, shopping: 0 };
+  
+  const chartData = [
+    { name: "Travel", value: breakdown.travel || 0 },
+    { name: "Food", value: breakdown.food || 0 },
+    { name: "Energy", value: breakdown.energy || 0 },
+    { name: "Shopping", value: breakdown.shopping || 0 },
+  ];
 
-  const data = Object.entries(summary?.breakdown || {}).map(([category, value]) => ({
-    name: categoryMeta[category]?.label || category,
-    value: parseFloat(value.toFixed(2)),
-    color: categoryMeta[category]?.color || "#6b7280",
-    emoji: categoryMeta[category]?.emoji || "📊",
-  }));
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut", delay: 0.2 } }
+  };
 
   return (
-    <Card className="border-0 shadow-sm">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold text-gray-700">
-          Monthly Emissions Breakdown
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {data.every((d) => d.value === 0) ? (
-          <div className="h-44 flex flex-col items-center justify-center text-gray-400 gap-2">
-            <span className="text-3xl">📊</span>
-            <p className="text-sm">No data yet — start logging activities!</p>
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={data} layout="vertical" margin={{ left: 16, right: 16 }}>
-              <XAxis type="number" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis
-                type="category"
-                dataKey="name"
-                tick={{ fontSize: 12 }}
-                axisLine={false}
-                tickLine={false}
-                width={68}
-              />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: "#f3f4f6" }} />
-              <Bar dataKey="value" radius={[0, 6, 6, 0]} maxBarSize={28}>
-                {data.map((entry, index) => (
-                  <Cell key={index} fill={entry.color} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        )}
-      </CardContent>
-    </Card>
+    <motion.div variants={itemVariants} initial="hidden" animate="show" className="h-[300px] bg-zinc-900/80 backdrop-blur border border-zinc-800 rounded-2xl p-6 flex flex-col">
+      <div>
+        <h3 className="text-white font-semibold text-lg">Emissions by category</h3>
+        <p className="text-zinc-500 text-sm mb-4">This week · click a bar to see details</p>
+      </div>
+      
+      <div className="flex-1 w-full min-h-0">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            layout="vertical"
+            data={chartData}
+            margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#27272a" />
+            <XAxis type="number" hide />
+            <YAxis 
+              dataKey="name" 
+              type="category" 
+              axisLine={false} 
+              tickLine={false} 
+              tick={{ fill: '#a1a1aa', fontSize: 12 }} 
+              width={70}
+            />
+            <Tooltip cursor={{ fill: '#27272a', opacity: 0.4 }} content={<CustomTooltip />} />
+            <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20} animationDuration={1500}>
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[entry.name]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </motion.div>
   );
 }

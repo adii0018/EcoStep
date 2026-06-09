@@ -18,11 +18,11 @@ export default function LogPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-4 md:pt-0">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Log Activity</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Record your daily carbon-emitting activities
+        <h1 className="text-3xl font-bold text-white tracking-tight mb-2">Log Activity</h1>
+        <p className="text-zinc-400">
+          Record your daily carbon-emitting activities to track your impact.
         </p>
       </div>
 
