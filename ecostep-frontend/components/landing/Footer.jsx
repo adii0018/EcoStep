@@ -39,7 +39,7 @@ export default function Footer() {
               <li><Link href="#features" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">Features</Link></li>
               <li><Link href="#how-it-works" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">How it works</Link></li>
               <li><Link href="#pricing" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">Pricing</Link></li>
-              <li><Link href="#" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">Changelog</Link></li>
+              <li><Link href="/changelog" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">Changelog</Link></li>
             </ul>
           </div>
 
@@ -47,10 +47,10 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-bold mb-6">Company</h4>
             <ul className="space-y-4">
-              <li><Link href="#" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">About</Link></li>
-              <li><Link href="#" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">Blog</Link></li>
-              <li><Link href="#" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">Careers</Link></li>
-              <li><Link href="#" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">Press</Link></li>
+              <li><Link href="/about" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">About</Link></li>
+              <li><Link href="/blog" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">Blog</Link></li>
+              <li><Link href="/careers" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">Careers</Link></li>
+              <li><Link href="/press" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">Press</Link></li>
             </ul>
           </div>
 
@@ -58,9 +58,9 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-bold mb-6">Legal</h4>
             <ul className="space-y-4">
-              <li><Link href="#" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">Privacy Policy</Link></li>
-              <li><Link href="#" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">Terms of Service</Link></li>
-              <li><Link href="#" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">Cookie Policy</Link></li>
+              <li><Link href="/privacy" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">Terms of Service</Link></li>
+              <li><Link href="/cookies" className="text-zinc-400 hover:text-emerald-400 text-sm transition-colors">Cookie Policy</Link></li>
             </ul>
           </div>
         </div>
