@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🌱 EcoStep Frontend
 
-## Getting Started
+Next.js 14 frontend for **EcoStep** — a personal carbon footprint tracker. Connects to the Express.js backend at `http://localhost:5000`.
 
-First, run the development server:
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 14 (App Router) |
+| Styling | Tailwind CSS |
+| UI Components | shadcn/ui (Radix primitives) |
+| Charts | Recharts |
+| API | Axios |
+| Auth Storage | js-cookie |
+| Forms | React Hook Form |
+| Toasts | Sonner |
+
+---
+
+## Quick Start
+
+### 1. Prerequisites
+
+Make sure the **EcoStep backend** is running first:
 
 ```bash
+# In the ecostep-backend/ directory:
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Server will be at http://localhost:5000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install and Run Frontend
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+cd ecostep-frontend
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Learn More
+### 3. Environment Variables
 
-To learn more about Next.js, take a look at the following resources:
+One env var is preconfigured in `.env.local`:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+ecostep-frontend/
+├── app/
+│   ├── layout.jsx               Root layout (Toaster, fonts)
+│   ├── page.jsx                 Redirect: /dashboard or /login
+│   ├── (auth)/login/page.jsx    Login form
+│   ├── (auth)/register/page.jsx Register form
+│   └── (app)/
+│       ├── layout.jsx           Protected layout with Sidebar
+│       ├── dashboard/page.jsx   Dashboard (metrics, charts)
+│       ├── log/page.jsx         Log activities + history
+│       └── tips/page.jsx        AI sustainability tips
+├── components/
+│   ├── Sidebar.jsx              Desktop sidebar + mobile bottom nav
+│   ├── dashboard/               MetricCards, BreakdownChart, CompareBar, RecentActivity
+│   ├── log/                     ActivityForm, ActivityList
+│   └── tips/                    TipCard
+├── lib/
+│   ├── api.js                   Axios + JWT interceptors
+│   ├── carbonFactors.js         Emission factors + calculateCO2()
+│   └── utils.js                 cn() helper
+└── hooks/
+    ├── useAuth.js               Auth state + login/logout
+    └── useActivities.js         Activity CRUD + summary
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+---
+
+## Pages
+
+- **`/login`** — Email/password, saves JWT cookie, redirects to /dashboard
+- **`/register`** — Name/email/password, same cookie flow
+- **`/dashboard`** — KPI cards, breakdown chart, compare bar, recent activities
+- **`/log`** — Activity form with live CO2 preview + full activity list with delete
+- **`/tips`** — AI tips via Claude API, weekly challenge card
+
+## Available Scripts
+
+```bash
+npm run dev      # Dev server at http://localhost:3000
+npm run build    # Production build
+npm run lint     # ESLint
+```
