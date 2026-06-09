@@ -1,12 +1,27 @@
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import Navbar from "@/components/landing/Navbar";
+import Hero from "@/components/landing/Hero";
+import Stats from "@/components/landing/Stats";
+import Features from "@/components/landing/Features";
+import HowItWorks from "@/components/landing/HowItWorks";
+import Testimonials from "@/components/landing/Testimonials";
+import Pricing from "@/components/landing/Pricing";
+import CTA from "@/components/landing/CTA";
+import Footer from "@/components/landing/Footer";
 
 export default function Home() {
-  const cookieStore = cookies();
-  const token = cookieStore.get("ecostep_token");
-  if (token) {
-    redirect("/dashboard");
-  } else {
-    redirect("/login");
-  }
+  return (
+    <div className="min-h-screen bg-zinc-950 text-zinc-50 selection:bg-emerald-500/30 font-sans dark">
+      <Navbar />
+      <main>
+        <Hero />
+        <Stats />
+        <Features />
+        <HowItWorks />
+        <Testimonials />
+        <Pricing />
+        <CTA />
+      </main>
+      <Footer />
+    </div>
+  );
 }
