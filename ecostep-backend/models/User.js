@@ -23,6 +23,26 @@ const userSchema = new mongoose.Schema(
       minlength: [6, 'Password must be at least 6 characters'],
       select: false,
     },
+    city: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'City cannot exceed 100 characters'],
+      default: '',
+    },
+    ecoPoints: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    streak: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    lastActivityDate: {
+      type: Date,
+      default: null,
+    },
     createdAt: {
       type: Date,
       default: Date.now,

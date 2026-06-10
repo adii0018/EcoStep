@@ -10,6 +10,7 @@ import { connectDB } from './config/db.js'
 import authRoutes from './routes/auth.js'
 import activityRoutes from './routes/activities.js'
 import insightRoutes from './routes/insights.js'
+import userRoutes from './routes/users.js'
 
 const app = express()
 
@@ -63,6 +64,7 @@ app.get('/health', (_req, res) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/activities', activityRoutes)
 app.use('/api/insights', insightRoutes)
+app.use('/api/users', userRoutes)
 
 // ── 404 handler ───────────────────────────────────────────────────────────────
 app.use((_req, res) => {

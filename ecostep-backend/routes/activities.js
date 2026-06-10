@@ -6,6 +6,7 @@ import {
   getActivities,
   getSummary,
   deleteActivity,
+  updateActivity,
 } from '../controllers/activityController.js'
 import { FACTORS } from '../lib/carbonFactors.js'
 
@@ -52,6 +53,7 @@ router.use(protect)
 router.get('/summary', getSummary)
 router.get('/', getActivities)
 router.post('/', validateActivity, handleValidation, createActivity)
+router.put('/:id', validateDelete, validateActivity, handleValidation, updateActivity)
 router.delete('/:id', validateDelete, handleValidation, deleteActivity)
 
 // Convenience route for factors list

@@ -5,7 +5,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import Link from "next/link";
-import { PlusCircle, Lightbulb } from "lucide-react";
+import { PlusCircle, Lightbulb, Bell, Star, Flame } from "lucide-react";
 import dynamic from "next/dynamic";
 
 import DashboardSkeleton from "@/components/dashboard/DashboardSkeleton";
@@ -43,6 +43,8 @@ export default function DashboardClient() {
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState(null);
   const [user, setUser] = useState(null);
+  const [profileData, setProfileData] = useState(null);
+  const [showNotif, setShowNotif] = useState(false);
 
   useEffect(() => {
     // Get user from localStorage
@@ -56,6 +58,19 @@ export default function DashboardClient() {
     }
 
     fetchDashboardData();
+    // Fetch profile for EcoPoints + streak
+    try {
+      const token = Cookies.get("ecostep_token");
+      const { data: pd } = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL || "https://ecostep-backend.onrender.com/api"}/users/profile`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setProfileData(pd);
+      // Show notification if last activity was NOT today
+      const last = pd?.user?.lastActivityDate ? new Date(pd.user.lastActivityDate) : null;
+      const todayStr = new Date().toDateString();
+      if (!last || last.toDateString() !== todayStr) setShowNotif(true);
+    } catch { /* silent */ }
   }, []);
 
   const fetchDashboardData = async () => {
@@ -123,6 +138,29 @@ export default function DashboardClient() {
 
   return (
     <div className="space-y-6 pb-12 pt-4 md:pt-0">
+      {/* Notification Banner */}
+      {showNotif && (
+        <div className="flex items-center justify-between gap-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-5 py-3">
+          <div className="flex items-center gap-3">
+            <Bell className="w-4 h-4 text-amber-400 flex-shrink-0" />
+            <p className="text-sm text-amber-200">You haven&apos;t logged any activity today! 🌿 Keep your streak alive.</p>
+          </div>
+          <button onClick={() => setShowNotif(false)} className="text-amber-400/50 hover:text-amber-400 text-lg leading-none flex-shrink-0">×</button>
+        </div>
+      )}
+      {/* EcoPoints & Streak Row */}
+      {profileData?.user && (
+        <div className="flex items-center gap-3 justify-end flex-wrap">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-full text-yellow-400 text-xs font-medium">
+            <Star className="w-3.5 h-3.5" /> {profileData.user.ecoPoints} EcoPoints
+          </div>
+          {profileData.user.streak > 0 && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500/10 border border-orange-500/20 rounded-full text-orange-400 text-xs font-medium">
+              <Flame className="w-3.5 h-3.5" /> {profileData.user.streak} day streak
+            </div>
+          )}
+        </div>
+      )}
       {/* Row 1: Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
         <div>
