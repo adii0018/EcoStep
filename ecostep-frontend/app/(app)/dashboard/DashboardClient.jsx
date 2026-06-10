@@ -58,19 +58,21 @@ export default function DashboardClient() {
     }
 
     fetchDashboardData();
-    // Fetch profile for EcoPoints + streak
-    try {
-      const token = Cookies.get("ecostep_token");
-      const { data: pd } = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL || "https://ecostep-backend.onrender.com/api"}/users/profile`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setProfileData(pd);
-      // Show notification if last activity was NOT today
-      const last = pd?.user?.lastActivityDate ? new Date(pd.user.lastActivityDate) : null;
-      const todayStr = new Date().toDateString();
-      if (!last || last.toDateString() !== todayStr) setShowNotif(true);
-    } catch { /* silent */ }
+    // Fetch profile for EcoPoints + streak (async IIFE)
+    (async () => {
+      try {
+        const token = Cookies.get("ecostep_token");
+        const { data: pd } = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL || "https://ecostep-backend.onrender.com/api"}/users/profile`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setProfileData(pd);
+        // Show notification if last activity was NOT today
+        const last = pd?.user?.lastActivityDate ? new Date(pd.user.lastActivityDate) : null;
+        const todayStr = new Date().toDateString();
+        if (!last || last.toDateString() !== todayStr) setShowNotif(true);
+      } catch { /* silent */ }
+    })();
   }, []);
 
   const fetchDashboardData = async () => {
