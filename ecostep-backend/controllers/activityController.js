@@ -117,7 +117,7 @@ export const getSummary = async (req, res, next) => {
       breakdown: Object.fromEntries(
         breakdown.map((b) => [b._id, Math.round(b.total * 10) / 10])
       ),
-      weeklyTrend: trend.map((t) => ({ date: t._id, co2: t.total })),
+      weeklyTrend: trend.map((t) => Math.round(t.total * 10) / 10),
     }
 
     res.json({

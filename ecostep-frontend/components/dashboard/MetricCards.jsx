@@ -26,8 +26,11 @@ function AnimatedNumber({ value, suffix = "", decimal = 1 }) {
 export default function MetricCards({ data }) {
   const { totalCo2ThisWeek, totalCo2ThisMonth, savedVsAverage, weeklyTrend } = data;
   
-  // Create tiny sparkline data
-  const sparklineData = (weeklyTrend || []).map((val, i) => ({ value: val, index: i }));
+  // Normalise: backend may return [{date, co2}] or plain numbers
+  const sparklineData = (weeklyTrend || []).map((val, i) => ({
+    value: typeof val === 'object' ? (val.co2 ?? 0) : (val ?? 0),
+    index: i
+  }));
 
   const containerVariants = {
     hidden: { opacity: 0 },

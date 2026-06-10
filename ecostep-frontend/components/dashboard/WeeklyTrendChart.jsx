@@ -27,9 +27,10 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function WeeklyTrendChart({ data }) {
   const weeklyTrend = data?.weeklyTrend || [3.1, 2.8, 3.2, 2.4, 2.9, 2.2, 1.8];
   
+  // Normalise: backend may return [{date, co2}] or plain numbers
   const chartData = weeklyTrend.map((val, i) => ({
-    name: DAYS[i],
-    value: val
+    name: DAYS[i % 7],
+    value: typeof val === 'object' ? (val.co2 ?? 0) : (val ?? 0)
   }));
 
   const itemVariants = {
