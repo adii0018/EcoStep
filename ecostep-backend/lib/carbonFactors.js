@@ -5,6 +5,7 @@ const FACTORS = {
     'Car (petrol)': 0.18,
     'Car (diesel)': 0.16,
     'Bike/scooter': 0.09,
+    'Auto-rickshaw': 0.05,
     Bus: 0.04,
     'Metro/train': 0.02,
     'Flight (domestic)': 0.25,
@@ -18,6 +19,7 @@ const FACTORS = {
   },
   energy: {
     'Home electricity': 0.42,
+    'Indian grid electricity': 0.72,
     'LPG cooking': 2.9,
     'AC usage (hr)': 0.8,
   },
