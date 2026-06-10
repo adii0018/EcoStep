@@ -1,407 +1,167 @@
-# 🌱 EcoStep Backend
+<div align="center">
+  
+# 🌱 EcoStep
 
-A RESTful API for **EcoStep** — a personal carbon footprint tracker that lets users log daily activities, calculate CO₂ emissions, view analytics, and receive AI-generated sustainability tips powered by Anthropic Claude.
+**Your AI-Powered Personal Carbon Footprint Tracker**
+
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)](https://nextjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=node.js)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb)](https://mongodb.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+[![Anthropic Claude](https://img.shields.io/badge/AI-Claude_3.5_Sonnet-purple)](https://anthropic.com/)
+[![Jest](https://img.shields.io/badge/Testing-Jest_%2B_RTL-C21325?logo=jest)](https://jestjs.io/)
+
+EcoStep is a beautifully designed, full-stack web application that helps users track, understand, and reduce their daily carbon emissions. Through gamification and AI-driven insights, EcoStep makes sustainability engaging and actionable.
+
+[View Demo](#) • [Report Bug](#) • [Request Feature](#)
+
+</div>
 
 ---
 
-## Tech Stack
+## ✨ Key Features
 
-| Layer | Technology |
-|---|---|
-| Runtime | Node.js |
-| Framework | Express.js |
-| Database | MongoDB (via Mongoose) |
-| Auth | JWT + bcryptjs |
-| AI | Anthropic Claude (`claude-sonnet-4-20250514`) |
-| Security | helmet, cors |
-| Validation | express-validator |
+- **📊 Comprehensive Carbon Tracking:** Log daily activities across Travel, Food, Energy, and Shopping with region-specific (India & Global) emission factors.
+- **🤖 AI Sustainability Tips:** Integrates with Anthropic's Claude AI to generate highly personalized, actionable advice based on your recent activity history.
+- **🏆 Gamification & Leaderboards:** Earn *EcoPoints*, maintain daily *Streaks*, climb global rankings, and unlock eco-tiers (Seedling to Eco Champion).
+- **📈 Advanced Analytics:** Visualize your footprint with interactive Recharts (Bar, Pie, Trend lines) and compare your usage against national and global benchmarks.
+- **⚡ Blazing Fast Performance:** Next.js App Router, dynamic imports for heavy charts, React memoization, and strict API AbortControllers ensure a seamless, app-like experience.
+- **🎨 Premium Dark UI:** A stunning, fully responsive glassmorphic dark-mode interface built with Tailwind CSS and Framer Motion animations.
 
 ---
 
-## Project Structure
+## 🛠️ Tech Stack
 
+### Frontend (Client)
+- **Framework:** Next.js 14 (App Router)
+- **Styling:** Tailwind CSS, Shadcn/UI, Framer Motion
+- **Data Viz:** Recharts
+- **Testing:** Jest, React Testing Library
+
+### Backend (API)
+- **Runtime:** Node.js, Express.js
+- **Database:** MongoDB (Mongoose)
+- **Authentication:** JWT, bcryptjs
+- **AI Integration:** Anthropic API (Claude 3.5 Sonnet)
+- **Testing:** Supertest, Jest
+
+---
+
+## 📂 Project Architecture
+
+```text
+EcoStep/
+├── ecostep-frontend/       # Next.js Application
+│   ├── app/                # Route definitions & Pages (Dashboard, Leaderboard, etc.)
+│   ├── components/         # Reusable UI components & Layouts
+│   ├── lib/                # API helpers, Carbon Factors
+│   └── __tests__/          # Frontend Unit & Component Tests
+│
+└── ecostep-backend/        # Node.js/Express API
+    ├── controllers/        # Route logic (Auth, Activities, Insights, Users)
+    ├── models/             # Mongoose Schemas (User, Activity)
+    ├── routes/             # API Endpoints
+    ├── lib/                # Shared Carbon calculation logic
+    └── __tests__/          # API Integration Tests
 ```
-ecostep-backend/
-├── server.js                 # Entry point
-├── .env.example              # Environment variable template
-├── package.json
-├── config/
-│   └── db.js                 # Mongoose connection
-├── lib/
-│   └── carbonFactors.js      # Emission constants + calculator
-├── models/
-│   ├── User.js
-│   └── Activity.js
-├── middleware/
-│   └── auth.js               # JWT verification
-├── routes/
-│   ├── auth.js
-│   ├── activities.js
-│   └── insights.js
-└── controllers/
-    ├── authController.js
-    ├── activityController.js
-    └── insightController.js
-```
 
 ---
 
-## Setup
+## 🚀 Quick Start (Local Development)
 
-### 1. Clone & Install
+### Prerequisites
+- Node.js (v18+)
+- MongoDB Atlas cluster (or local MongoDB instance)
+- Anthropic API Key
 
+### 1. Clone the repository
 ```bash
-git clone <repo-url>
+git clone https://github.com/adii0018/EcoStep.git
+cd EcoStep
+```
+
+### 2. Setup Backend
+```bash
 cd ecostep-backend
 npm install
 ```
-
-### 2. Configure Environment Variables
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and fill in the required values:
-
+Create a `.env` file in the `ecostep-backend` directory:
 ```env
 PORT=5000
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/ecostep?retryWrites=true&w=majority
-JWT_SECRET=replace_with_a_long_random_string
+MONGODB_URI=mongodb+srv://<your_username>:<your_password>@cluster0.mongodb.net/ecostep?retryWrites=true&w=majority
+JWT_SECRET=your_super_secret_jwt_key
 JWT_EXPIRES_IN=7d
 ANTHROPIC_API_KEY=sk-ant-api03-...
 CLIENT_URL=http://localhost:3000
 ```
-
-### 3. Run
-
+Start the backend server:
 ```bash
-# Development (auto-restart on file changes)
 npm run dev
-
-# Production
-npm start
 ```
 
-You should see:
+### 3. Setup Frontend
+Open a new terminal window:
+```bash
+cd ecostep-frontend
+npm install
 ```
-MongoDB connected: cluster0.xxxxx.mongodb.net
-Server running on port 5000
+Create a `.env.local` file in the `ecostep-frontend` directory:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
+Start the frontend development server:
+```bash
+npm run dev
+```
+
+Your app will be running at `http://localhost:3000`.
 
 ---
 
-## How to Get Credentials
+## 🧪 Testing
 
-### MongoDB Atlas URI
+EcoStep is built with reliability in mind, featuring comprehensive test suites across both stacks.
 
-1. Go to [https://cloud.mongodb.com](https://cloud.mongodb.com) and create a free account.
-2. Create a new **Cluster** (free M0 tier works).
-3. Go to **Database Access** → Add a new database user with a username and password.
-4. Go to **Network Access** → Add IP `0.0.0.0/0` (or your server IP).
-5. Click **Connect** on your cluster → **Connect your application**.
-6. Copy the connection string and replace `<username>` and `<password>`.
+### Frontend Tests (Jest + React Testing Library)
+Tests cover component rendering, calculation edge cases, and API mocking.
+```bash
+cd ecostep-frontend
+npm run test           # Run all tests
+npm run test:coverage  # Generate coverage report
+```
 
-### Anthropic API Key
+### Backend Tests (Supertest)
+Tests cover route protection, data validation, and database operations.
+```bash
+cd ecostep-backend
+npm run test
+```
 
-1. Go to [https://console.anthropic.com](https://console.anthropic.com) and sign up.
-2. Navigate to **API Keys** → Create a new key.
-3. Copy the key starting with `sk-ant-api03-...` and paste it as `ANTHROPIC_API_KEY`.
+*For more detailed testing instructions and troubleshooting (e.g., PowerShell execution policies), see [TESTING.md](./TESTING.md).*
 
 ---
 
-## API Reference
+## 🌍 Emission Factors Reference
 
-Base URL: `http://localhost:5000`
+EcoStep calculations are localized for improved accuracy (including Indian-specific grid parameters).
 
-All protected routes require the header:
-```
-Authorization: Bearer <jwt_token>
-```
-
----
-
-### Health Check
-
-#### `GET /health`
-
-```json
-// Response 200
-{
-  "status": "ok",
-  "timestamp": "2025-06-09T06:00:00.000Z"
-}
-```
-
----
-
-### Auth — `/api/auth`
-
-#### `POST /api/auth/register`
-
-**Request body:**
-```json
-{
-  "name": "Aditya Sharma",
-  "email": "aditya@example.com",
-  "password": "securepass123"
-}
-```
-
-**Response 201:**
-```json
-{
-  "message": "Account created successfully.",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "id": "664f1a2b3c4d5e6f7a8b9c0d",
-    "name": "Aditya Sharma",
-    "email": "aditya@example.com",
-    "createdAt": "2025-06-09T06:00:00.000Z"
-  }
-}
-```
-
----
-
-#### `POST /api/auth/login`
-
-**Request body:**
-```json
-{
-  "email": "aditya@example.com",
-  "password": "securepass123"
-}
-```
-
-**Response 200:**
-```json
-{
-  "message": "Logged in successfully.",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "id": "664f1a2b3c4d5e6f7a8b9c0d",
-    "name": "Aditya Sharma",
-    "email": "aditya@example.com",
-    "createdAt": "2025-06-09T06:00:00.000Z"
-  }
-}
-```
-
----
-
-### Activities — `/api/activities` 🔒
-
-#### `POST /api/activities`
-
-Logs a new activity. CO₂ is calculated automatically.
-
-**Request body:**
-```json
-{
-  "category": "travel",
-  "type": "Car (petrol)",
-  "quantity": 25
-}
-```
-
-**Response 201:**
-```json
-{
-  "message": "Activity logged successfully.",
-  "activity": {
-    "_id": "664f1a2b3c4d5e6f7a8b9c01",
-    "userId": "664f1a2b3c4d5e6f7a8b9c0d",
-    "category": "travel",
-    "type": "Car (petrol)",
-    "quantity": 25,
-    "co2": 4.5,
-    "date": "2025-06-09T06:00:00.000Z"
-  }
-}
-```
-
-Valid `category` → `type` combinations:
-
-| Category | Types |
-|---|---|
-| `travel` | `Car (petrol)`, `Car (diesel)`, `Bike/scooter`, `Bus`, `Metro/train`, `Flight (domestic)` |
-| `food` | `Beef meal`, `Chicken meal`, `Fish meal`, `Vegetarian meal`, `Vegan meal` |
-| `energy` | `Home electricity`, `LPG cooking`, `AC usage (hr)` |
-| `shopping` | `New clothing`, `Electronics`, `Groceries` |
-
----
-
-#### `GET /api/activities`
-
-Returns up to 100 activities for the logged-in user, sorted newest first.
-
-**Response 200:**
-```json
-{
-  "count": 2,
-  "activities": [
-    {
-      "_id": "664f1a2b3c4d5e6f7a8b9c01",
-      "userId": "664f1a2b3c4d5e6f7a8b9c0d",
-      "category": "travel",
-      "type": "Car (petrol)",
-      "quantity": 25,
-      "co2": 4.5,
-      "date": "2025-06-09T06:00:00.000Z"
-    }
-  ]
-}
-```
-
----
-
-#### `GET /api/activities/summary`
-
-Returns aggregate analytics for the current user.
-
-**Response 200:**
-```json
-{
-  "totalCo2ThisWeek": 12.4,
-  "totalCo2ThisMonth": 47.2,
-  "breakdown": {
-    "travel": 20.0,
-    "food": 18.2,
-    "energy": 6.5,
-    "shopping": 2.5
-  },
-  "savedVsAverage": 45.8
-}
-```
-
-> `savedVsAverage` = India monthly average (93 kg) − your monthly total. Positive = you emitted less than average. Negative = you emitted more.
-
----
-
-#### `DELETE /api/activities/:id`
-
-Deletes an activity belonging to the authenticated user.
-
-**Response 200:**
-```json
-{
-  "message": "Activity deleted successfully."
-}
-```
-
-**Response 404:**
-```json
-{
-  "message": "Activity not found or not owned by you."
-}
-```
-
----
-
-#### `GET /api/activities/factors`
-
-Returns all valid emission factor keys (useful for frontend dropdowns).
-
-**Response 200:**
-```json
-{
-  "carbonFactors": {
-    "travel": { "Car (petrol)": 0.18, "..." : "..." },
-    "food": { "..." : "..." },
-    "energy": { "..." : "..." },
-    "shopping": { "..." : "..." }
-  }
-}
-```
-
----
-
-### Insights — `/api/insights` 🔒
-
-#### `POST /api/insights`
-
-Generates 3 AI-powered personalised sustainability tips from the last 7 days of logged activities. Falls back to hardcoded tips if the Claude API is unavailable.
-
-**Request body:** _(empty — uses JWT to identify the user)_
-
-**Response 200 (AI):**
-```json
-{
-  "source": "ai",
-  "tips": [
-    {
-      "title": "Reduce your car commute",
-      "description": "You drove 75 km by petrol car this week, generating 13.5 kg CO₂. Switching to the metro for 3 of those trips could save up to 11 kg per week.",
-      "savingKg": 11.0,
-      "icon": "🚇"
-    },
-    {
-      "title": "Try plant-based meals twice a week",
-      "description": "Your 4 chicken meals contributed 24 kg CO₂. Swapping 2 meals for vegetarian options saves around 10.2 kg per week.",
-      "savingKg": 10.2,
-      "icon": "🥗"
-    },
-    {
-      "title": "Optimise AC usage",
-      "description": "You logged 6 hours of AC use (4.8 kg CO₂). Using a fan instead for 3 of those hours and setting the thermostat to 24°C saves roughly 2.4 kg.",
-      "savingKg": 2.4,
-      "icon": "❄️"
-    }
-  ]
-}
-```
-
-**Response 200 (fallback):**
-```json
-{
-  "source": "fallback",
-  "tips": [...]
-}
-```
-
----
-
-## Emission Factors Reference
-
-| Category | Type | Factor (kg CO₂/unit) | Unit |
+| Category | Type | Factor | Unit |
 |---|---|---|---|
-| travel | Car (petrol) | 0.18 | per km |
-| travel | Car (diesel) | 0.16 | per km |
-| travel | Bike/scooter | 0.09 | per km |
-| travel | Bus | 0.04 | per km |
-| travel | Metro/train | 0.02 | per km |
-| travel | Flight (domestic) | 0.25 | per km |
-| food | Beef meal | 6.0 | per meal |
-| food | Chicken meal | 6.0 | per meal |
-| food | Fish meal | 3.2 | per meal |
-| food | Vegetarian meal | 0.9 | per meal |
-| food | Vegan meal | 0.5 | per meal |
-| energy | Home electricity | 0.42 | per kWh |
-| energy | LPG cooking | 2.9 | per kg |
-| energy | AC usage (hr) | 0.8 | per hour |
-| shopping | New clothing | 10.0 | per item |
-| shopping | Electronics | 30.0 | per item |
-| shopping | Groceries | 0.5 | per kg |
+| ⚡ **Energy** | Indian Grid Electricity | `0.72` | kg CO₂/kWh |
+| ⚡ **Energy** | LPG cooking | `2.9` | kg CO₂/kg |
+| 🚗 **Travel** | Auto-rickshaw (India) | `0.05` | kg CO₂/km |
+| 🚗 **Travel** | Car (petrol) | `0.18` | kg CO₂/km |
+| 🍽️ **Food** | Beef meal | `6.0` | kg CO₂/meal |
+| 🍽️ **Food** | Vegan meal | `0.5` | kg CO₂/meal |
+
+*A complete list is maintained within `lib/carbonFactors.js` on both the frontend and backend.*
 
 ---
 
-## Error Responses
+## 📄 License
 
-| Status | Meaning |
-|---|---|
-| 400 | Validation error / bad input |
-| 401 | Missing, expired, or invalid JWT |
-| 404 | Resource not found |
-| 500 | Internal server error |
+This project is licensed under the MIT License.
 
-All error responses follow the format:
-```json
-{ "message": "Human-readable error description" }
-```
-
----
-
-## License
-
-MIT
+<div align="center">
+  <p>Built with ❤️ to save the 🌍.</p>
+</div>
