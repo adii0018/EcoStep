@@ -59,25 +59,36 @@ export default function DashboardClient() {
       console.error("Failed to parse user data", e);
     }
 
-    fetchDashboardData();
+    const controller = new AbortController();
+    fetchDashboardData(controller.signal);
+    
     // Fetch profile for EcoPoints + streak (async IIFE)
     (async () => {
       try {
         const token = Cookies.get("ecostep_token");
         const { data: pd } = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL || "https://ecostep-backend.onrender.com/api"}/users/profile`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { 
+            headers: { Authorization: `Bearer ${token}` },
+            signal: controller.signal 
+          }
         );
         setProfileData(pd);
         // Show notification if last activity was NOT today
         const last = pd?.user?.lastActivityDate ? new Date(pd.user.lastActivityDate) : null;
         const todayStr = new Date().toDateString();
         if (!last || last.toDateString() !== todayStr) setShowNotif(true);
-      } catch { /* silent */ }
+      } catch (err) {
+        if (err.name !== 'CanceledError' && err.message !== 'canceled') {
+          console.error("Failed to fetch profile", err);
+        }
+      }
     })();
+
+    return () => controller.abort();
   }, []);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (signal) => {
     setLoading(true);
     try {
       const token = Cookies.get("ecostep_token");
@@ -85,6 +96,7 @@ export default function DashboardClient() {
         `${process.env.NEXT_PUBLIC_API_URL || "https://ecostep-backend.onrender.com/api"}/activities/summary`,
         {
           headers: { Authorization: `Bearer ${token}` },
+          signal,
         }
       );
 
@@ -103,6 +115,7 @@ export default function DashboardClient() {
         recentActivities: data.recentActivities || [], // Assuming backend might return this or we fall back to empty
       });
     } catch (error) {
+      if (error.name === 'CanceledError' || error.message === 'canceled') return;
       console.error("Failed to fetch summary data", error);
       toast.error("Using fallback data while connection is re-established.");
       // Fallback data so the premium UI still renders completely for demo

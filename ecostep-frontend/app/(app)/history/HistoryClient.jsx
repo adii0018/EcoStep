@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { Loader2, Filter, Download, Trash2, Pencil, X, Check, History } from "lucide-react";
@@ -9,7 +9,7 @@ const CATEGORIES = ["all", "travel", "food", "energy", "shopping"];
 const CATEGORY_COLORS = { travel: "text-blue-400 bg-blue-500/10", food: "text-orange-400 bg-orange-500/10", energy: "text-yellow-400 bg-yellow-500/10", shopping: "text-purple-400 bg-purple-500/10" };
 const CATEGORY_EMOJI = { travel: "🚗", food: "🍽️", energy: "⚡", shopping: "🛍️" };
 
-function EditModal({ activity, onSave, onClose }) {
+const EditModal = memo(function EditModal({ activity, onSave, onClose }) {
   const [form, setForm] = useState({ category: activity.category, type: activity.type, quantity: activity.quantity, date: activity.date?.split("T")[0] || "" });
   const [saving, setSaving] = useState(false);
 
@@ -59,7 +59,7 @@ function EditModal({ activity, onSave, onClose }) {
       </motion.div>
     </div>
   );
-}
+});
 
 function exportCSV(activities) {
   const headers = ["Date","Category","Type","Quantity","CO2 (kg)"];
@@ -83,21 +83,29 @@ export default function HistoryClient() {
   const [editTarget, setEditTarget] = useState(null);
   const [total, setTotal] = useState(0);
 
-  const fetchActivities = useCallback(async () => {
+  const fetchActivities = useCallback(async (signal) => {
     setLoading(true);
     try {
       const params = {};
       if (filters.category !== "all") params.category = filters.category;
       if (filters.from) params.from = filters.from;
       if (filters.to) params.to = filters.to;
-      const { data } = await api.get("/activities", { params });
+      const { data } = await api.get("/activities", { params, signal });
       setActivities(data.activities || []);
       setTotal(data.total || 0);
-    } catch { toast.error("Failed to load activities"); }
+    } catch (err) { 
+      if (err.name !== 'CanceledError' && err.message !== 'canceled') {
+        toast.error("Failed to load activities"); 
+      }
+    }
     finally { setLoading(false); }
   }, [filters]);
 
-  useEffect(() => { fetchActivities(); }, [fetchActivities]);
+  useEffect(() => { 
+    const controller = new AbortController();
+    fetchActivities(controller.signal); 
+    return () => controller.abort();
+  }, [fetchActivities]);
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this activity?")) return;
@@ -108,7 +116,7 @@ export default function HistoryClient() {
     } catch { toast.error("Delete failed"); }
   };
 
-  const totalCo2 = activities.reduce((s, a) => s + a.co2, 0);
+  const totalCo2 = useMemo(() => activities.reduce((s, a) => s + a.co2, 0), [activities]);
 
   return (
     <div className="space-y-6 pt-4 md:pt-0">

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { memo } from "react";
 import { LayoutDashboard, PlusCircle, Lightbulb, Leaf, LogOut, History, BarChart2, Trophy, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -16,7 +17,7 @@ const navItems = [
   { href: "/profile",     label: "Profile",      icon: User },
 ];
 
-export default function Sidebar() {
+const Sidebar = memo(function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
@@ -98,4 +99,6 @@ export default function Sidebar() {
       </nav>
     </>
   );
-}
+});
+
+export default Sidebar;

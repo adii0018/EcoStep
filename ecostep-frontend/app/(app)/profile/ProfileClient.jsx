@@ -14,15 +14,21 @@ export default function ProfileClient() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
     (async () => {
       try {
-        const { data } = await api.get("/users/profile");
+        const { data } = await api.get("/users/profile", { signal: controller.signal });
         setProfile(data.user);
         setStats(data.stats);
         setForm({ name: data.user.name, city: data.user.city || "" });
-      } catch { toast.error("Failed to load profile"); }
+      } catch (err) { 
+        if (err.name !== 'CanceledError' && err.message !== 'canceled') {
+          toast.error("Failed to load profile"); 
+        }
+      }
       finally { setLoading(false); }
     })();
+    return () => controller.abort();
   }, []);
 
   const handleSave = async () => {

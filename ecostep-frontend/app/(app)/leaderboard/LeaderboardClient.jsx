@@ -13,13 +13,19 @@ export default function LeaderboardClient() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const controller = new AbortController();
     (async () => {
       try {
-        const { data } = await api.get("/users/leaderboard");
+        const { data } = await api.get("/users/leaderboard", { signal: controller.signal });
         setData(data);
-      } catch { toast.error("Failed to load leaderboard"); }
+      } catch (err) { 
+        if (err.name !== 'CanceledError' && err.message !== 'canceled') {
+          toast.error("Failed to load leaderboard"); 
+        }
+      }
       finally { setLoading(false); }
     })();
+    return () => controller.abort();
   }, []);
 
   return (

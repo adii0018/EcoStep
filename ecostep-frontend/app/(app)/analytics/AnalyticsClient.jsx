@@ -24,13 +24,24 @@ export default function AnalyticsClient() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const controller = new AbortController();
+    
     (async () => {
       try {
-        const { data } = await api.get("/users/analytics");
+        const { data } = await api.get("/users/analytics", {
+          signal: controller.signal
+        });
         setData(data);
-      } catch { toast.error("Failed to load analytics"); }
-      finally { setLoading(false); }
+      } catch (err) {
+        if (err.name !== 'CanceledError' && err.message !== 'canceled') {
+          toast.error("Failed to load analytics");
+        }
+      } finally {
+        setLoading(false);
+      }
     })();
+
+    return () => controller.abort();
   }, []);
 
   if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-emerald-400" /></div>;
