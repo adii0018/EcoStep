@@ -13,7 +13,7 @@
 
 EcoStep is a beautifully designed, full-stack web application that helps users track, understand, and reduce their daily carbon emissions. Through gamification and AI-driven insights, EcoStep makes sustainability engaging and actionable.
 
-[View Demo](#) • [Report Bug](#) • [Request Feature](#)
+[View Live Demo](https://ecostep0018.vercel.app/) • [Report Bug](https://github.com/adii0018/EcoStep/issues) • [Request Feature](https://github.com/adii0018/EcoStep/issues)
 
 </div>
 
