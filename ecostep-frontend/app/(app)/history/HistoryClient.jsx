@@ -246,10 +246,17 @@ export default function HistoryClient() {
     }
   }, [buildFilterParams]);
 
+  // Debounce API calls when filters change (300ms)
   useEffect(() => {
     const controller = new AbortController();
-    fetchActivities(controller.signal);
-    return () => controller.abort();
+    const timeoutId = setTimeout(() => {
+      fetchActivities(controller.signal);
+    }, 300);
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, [fetchActivities]);
 
   const handleDeleteActivity = async (activityId) => {

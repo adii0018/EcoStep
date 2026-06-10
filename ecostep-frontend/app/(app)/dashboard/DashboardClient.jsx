@@ -2,6 +2,7 @@
 
 // React core
 import dynamic from 'next/dynamic';
+import { useCallback } from 'react';
 
 // Third-party libraries
 import Link from 'next/link';
@@ -148,10 +149,14 @@ export default function DashboardClient() {
 
   const displayName = user?.name?.split(' ')[0] ?? 'eco warrior';
 
+  const handleDismissReminder = useCallback(() => {
+    setShowActivityReminder(false);
+  }, [setShowActivityReminder]);
+
   return (
     <div className="space-y-6 pb-12 pt-4 md:pt-0">
       {showActivityReminder && (
-        <ActivityReminderBanner onDismiss={() => setShowActivityReminder(false)} />
+        <ActivityReminderBanner onDismiss={handleDismissReminder} />
       )}
 
       {profileData?.user && (

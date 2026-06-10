@@ -1,13 +1,20 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+// React core
+import { useMemo, memo } from 'react';
+
+// Third-party libraries
+import { motion } from 'framer-motion';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import PropTypes from 'prop-types';
+
+// ─── Static Constants (Memory Optimization) ───────────────────────────────────
 
 const COLORS = {
-  Travel: "#f97316", // orange-500
-  Food: "#f59e0b",   // amber-500
-  Energy: "#3b82f6", // blue-500
-  Shopping: "#a855f7",// purple-500
+  Travel: '#f97316',   // orange-500
+  Food: '#f59e0b',     // amber-500
+  Energy: '#3b82f6',   // blue-500
+  Shopping: '#a855f7', // purple-500
 };
 
 // India averages for dummy tooltip info
@@ -18,12 +25,22 @@ const INDIA_AVG = {
   Shopping: 2.1,
 };
 
-const CustomTooltip = ({ active, payload }) => {
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut', delay: 0.2 } },
+};
+
+const CHART_MARGINS = { top: 0, right: 0, left: 0, bottom: 0 };
+const TOOLTIP_CURSOR = { fill: '#27272a', opacity: 0.4 };
+
+// ─── Sub-Components ───────────────────────────────────────────────────────────
+
+function CustomTooltip({ active, payload }) {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     const value = payload[0].value;
     const avg = INDIA_AVG[data.name] || 0;
-    
+
     // Calculate percentage of total (dummy total derived roughly)
     const total = 18.4; // using the mock total from MetricCards
     const pct = ((value / total) * 100).toFixed(0);
@@ -42,25 +59,36 @@ const CustomTooltip = ({ active, payload }) => {
     );
   }
   return null;
+}
+
+CustomTooltip.propTypes = {
+  active: PropTypes.bool,
+  payload: PropTypes.array,
 };
 
-export default function BreakdownChart({ data }) {
-  const breakdown = data || { travel: 0, food: 0, energy: 0, shopping: 0 };
-  
-  const chartData = [
-    { name: "Travel", value: breakdown.travel || 0 },
-    { name: "Food", value: breakdown.food || 0 },
-    { name: "Energy", value: breakdown.energy || 0 },
-    { name: "Shopping", value: breakdown.shopping || 0 },
-  ];
+// ─── Main Component ───────────────────────────────────────────────────────────
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut", delay: 0.2 } }
-  };
+function BreakdownChart({ data }) {
+  const breakdown = data || { travel: 0, food: 0, energy: 0, shopping: 0 };
+
+  // Memoized data transformation (Time Optimization)
+  const chartData = useMemo(
+    () => [
+      { name: 'Travel', value: breakdown.travel || 0 },
+      { name: 'Food', value: breakdown.food || 0 },
+      { name: 'Energy', value: breakdown.energy || 0 },
+      { name: 'Shopping', value: breakdown.shopping || 0 },
+    ],
+    [breakdown.travel, breakdown.food, breakdown.energy, breakdown.shopping]
+  );
 
   return (
-    <motion.div variants={itemVariants} initial="hidden" animate="show" className="h-[300px] bg-zinc-900/80 backdrop-blur border border-zinc-800 rounded-2xl p-6 flex flex-col">
+    <motion.div
+      variants={ITEM_VARIANTS}
+      initial="hidden"
+      animate="show"
+      className="h-[300px] bg-zinc-900/80 backdrop-blur border border-zinc-800 rounded-2xl p-6 flex flex-col"
+    >
       <div>
         <h3 className="text-white font-semibold text-lg">Emissions by category</h3>
         <p className="text-zinc-500 text-sm mb-4">This week · click a bar to see details</p>
@@ -86,29 +114,25 @@ export default function BreakdownChart({ data }) {
           </tbody>
         </table>
       </div>
-      
-      <div 
+
+      <div
         className="flex-1 w-full min-h-0"
         role="img"
         aria-label="Horizontal bar chart showing carbon footprint breakdown by category: Travel, Food, Energy, and Shopping."
       >
         <ResponsiveContainer width="100%" height="100%" minHeight={150}>
-          <BarChart
-            layout="vertical"
-            data={chartData}
-            margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
-          >
+          <BarChart layout="vertical" data={chartData} margin={CHART_MARGINS}>
             <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#27272a" />
             <XAxis type="number" hide />
-            <YAxis 
-              dataKey="name" 
-              type="category" 
-              axisLine={false} 
-              tickLine={false} 
-              tick={{ fill: '#a1a1aa', fontSize: 12 }} 
+            <YAxis
+              dataKey="name"
+              type="category"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: '#a1a1aa', fontSize: 12 }}
               width={70}
             />
-            <Tooltip cursor={{ fill: '#27272a', opacity: 0.4 }} content={<CustomTooltip />} />
+            <Tooltip cursor={TOOLTIP_CURSOR} content={<CustomTooltip />} />
             <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20} animationDuration={1500}>
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[entry.name]} />
@@ -120,3 +144,15 @@ export default function BreakdownChart({ data }) {
     </motion.div>
   );
 }
+
+BreakdownChart.propTypes = {
+  data: PropTypes.shape({
+    travel: PropTypes.number,
+    food: PropTypes.number,
+    energy: PropTypes.number,
+    shopping: PropTypes.number,
+  }),
+};
+
+// Memoized to prevent unnecessary re-renders on dashboard state updates
+export default memo(BreakdownChart);

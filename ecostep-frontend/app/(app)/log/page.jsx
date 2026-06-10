@@ -1,5 +1,8 @@
-import LogPageClient from "./LogPageClient";
+import dynamic from 'next/dynamic';
 
+const LogPageClient = dynamic(() => import('./LogPageClient'), {
+  ssr: false,
+});
 export const metadata = {
   title: "Log Activity | EcoStep",
   description: "Log your daily emissions from food, travel, and energy",

@@ -1,32 +1,50 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { CheckCircle2 } from "lucide-react";
-import { useState } from "react";
+// React core
+import { useState, useCallback, memo } from 'react';
 
-export default function WeeklyChallenge() {
+// Third-party libraries
+import { motion } from 'framer-motion';
+import { CheckCircle2 } from 'lucide-react';
+
+// ─── Static Constants (Memory Optimization) ───────────────────────────────────
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut', delay: 0.3 } },
+};
+
+const CIRCLE_RADIUS = 45;
+const CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
+const TOTAL_TRIPS = 3;
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
+function WeeklyChallenge() {
   const [completed, setCompleted] = useState(false);
-  
-  // Dummy state
-  const total = 3;
-  const current = completed ? 3 : 2;
-  const percentage = (current / total) * 100;
-  
-  const circumference = 2 * Math.PI * 45; // r=45
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut", delay: 0.3 } }
-  };
+  // Memoized completion handler
+  const handleComplete = useCallback(() => {
+    setCompleted(true);
+  }, []);
+
+  // Time optimization: simple math operations, no need for useMemo unless complex
+  const current = completed ? TOTAL_TRIPS : 2;
+  const percentage = (current / TOTAL_TRIPS) * 100;
+  const strokeDashoffset = CIRCUMFERENCE - (percentage / 100) * CIRCUMFERENCE;
 
   return (
-    <motion.div variants={itemVariants} initial="hidden" animate="show" className="h-full min-h-[280px] bg-zinc-900/80 backdrop-blur border border-zinc-800 rounded-2xl p-6 flex flex-col items-center justify-between relative overflow-hidden group">
+    <motion.div
+      variants={ITEM_VARIANTS}
+      initial="hidden"
+      animate="show"
+      className="h-full min-h-[280px] bg-zinc-900/80 backdrop-blur border border-zinc-800 rounded-2xl p-6 flex flex-col items-center justify-between relative overflow-hidden group"
+    >
       {/* Background glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
-      
+
       <div className="w-full">
-        <h3 className="text-white font-semibold text-lg text-center">This week's challenge</h3>
+        <h3 className="text-white font-semibold text-lg text-center">This week&apos;s challenge</h3>
       </div>
 
       <div className="flex flex-col items-center flex-1 justify-center z-10 w-full relative">
@@ -36,7 +54,7 @@ export default function WeeklyChallenge() {
             <circle
               cx="64"
               cy="64"
-              r="45"
+              r={CIRCLE_RADIUS}
               stroke="currentColor"
               strokeWidth="8"
               fill="transparent"
@@ -44,45 +62,53 @@ export default function WeeklyChallenge() {
             />
             {/* Progress Circle */}
             <motion.circle
-              initial={{ strokeDashoffset: circumference }}
+              initial={{ strokeDashoffset: CIRCUMFERENCE }}
               animate={{ strokeDashoffset }}
-              transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
+              transition={{ duration: 1.5, ease: 'easeOut', delay: 0.5 }}
               cx="64"
               cy="64"
-              r="45"
+              r={CIRCLE_RADIUS}
               stroke="currentColor"
               strokeWidth="8"
               fill="transparent"
-              strokeDasharray={circumference}
+              strokeDasharray={CIRCUMFERENCE}
               strokeLinecap="round"
               className="text-emerald-500"
             />
           </svg>
           <div className="text-center">
-            <span className="text-2xl font-bold text-white block leading-none">{current}/{total}</span>
+            <span className="text-2xl font-bold text-white block leading-none">
+              {current}/{TOTAL_TRIPS}
+            </span>
           </div>
         </div>
 
-        <p className="text-white font-medium text-center leading-tight mb-1">Go car-free for 3 trips</p>
-        <p className="text-xs text-zinc-400 text-center px-4 mb-2">Take metro, bus or walk instead of car</p>
-        
+        <p className="text-white font-medium text-center leading-tight mb-1">
+          Go car-free for {TOTAL_TRIPS} trips
+        </p>
+        <p className="text-xs text-zinc-400 text-center px-4 mb-2">
+          Take metro, bus or walk instead of car
+        </p>
+
         <div className="flex items-center gap-1 text-xs text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-full mb-3">
           <CheckCircle2 className="w-3 h-3" />
           <span>Earn 50 EcoPoints</span>
         </div>
-        
+
         {completed ? (
-          <p className="text-sm text-emerald-500 font-medium animate-pulse">Challenge completed! 🎉</p>
+          <p className="text-sm text-emerald-500 font-medium animate-pulse">
+            Challenge completed! 🎉
+          </p>
         ) : (
-          <button 
-            onClick={() => setCompleted(true)}
+          <button
+            onClick={handleComplete}
             className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-medium py-2 rounded-xl transition-colors"
           >
             Mark 1 trip complete
           </button>
         )}
       </div>
-      
+
       <div className="w-full text-center mt-2 border-t border-zinc-800/50 pt-2 z-10">
         <p className="text-xs text-orange-400/80 font-medium flex items-center justify-center gap-1">
           🔥 4 week streak — keep it up!
@@ -91,3 +117,5 @@ export default function WeeklyChallenge() {
     </motion.div>
   );
 }
+
+export default memo(WeeklyChallenge);
