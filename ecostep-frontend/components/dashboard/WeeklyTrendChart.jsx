@@ -70,7 +70,7 @@ export default function WeeklyTrendChart({ data }) {
         role="img"
         aria-label="Area chart showing daily CO2 emissions trend for this week from Monday to Sunday."
       >
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minHeight={150}>
           <AreaChart
             data={chartData}
             margin={{ top: 10, right: 10, left: -20, bottom: 0 }}

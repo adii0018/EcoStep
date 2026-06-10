@@ -92,7 +92,7 @@ export default function BreakdownChart({ data }) {
         role="img"
         aria-label="Horizontal bar chart showing carbon footprint breakdown by category: Travel, Food, Energy, and Shopping."
       >
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minHeight={150}>
           <BarChart
             layout="vertical"
             data={chartData}

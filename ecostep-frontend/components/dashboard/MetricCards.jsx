@@ -70,7 +70,7 @@ export default function MetricCards({ data }) {
             </span>
           </div>
           <div className="w-24 h-8 opacity-70">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minHeight={32}>
               <LineChart data={sparklineData}>
                 <Line type="monotone" dataKey="value" stroke="#10b981" strokeWidth={2} dot={false} isAnimationActive={true} animationDuration={1500} />
               </LineChart>
