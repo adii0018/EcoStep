@@ -1,101 +1,128 @@
+'use client';
+
+// React core
 import { useState, useEffect, useCallback, useRef } from 'react';
 
+// Third-party libraries
 import { toast } from 'sonner';
+
+// Services
 import { getActivitySummary } from '../services/activityService';
 import { getUserProfile } from '../services/userService';
 
+// Utils
+import { isToday } from '../utils/date-formatter';
+
+// Default summary data used as fallback if the API is unavailable
+const FALLBACK_SUMMARY = {
+  totalCo2ThisWeek: 0,
+  totalCo2ThisMonth: 0,
+  savedVsAverage: 0,
+  breakdown: { travel: 0, food: 0, energy: 0, shopping: 0 },
+  weeklyTrend: [0, 0, 0, 0, 0, 0, 0],
+  recentActivities: [],
+};
+
+// Delay before showing skeleton (avoids flash on fast loads)
+const SKELETON_DELAY_MS = 200;
+
+/**
+ * Reads the logged-in user from localStorage, returning null on failure.
+ * @returns {Object|null} Parsed user object or null
+ */
+function readUserFromLocalStorage() {
+  try {
+    const storedUser = localStorage.getItem('ecostep_user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Custom hook that manages all data fetching and state for the Dashboard page.
+ * @returns {{ loading: boolean, summary: Object, user: Object, profileData: Object, showNotif: boolean, showSkeleton: boolean, setShowNotif: Function, refetch: Function }}
+ */
 export function useDashboard() {
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [summary, setSummary] = useState(null);
   const [user, setUser] = useState(null);
   const [profileData, setProfileData] = useState(null);
-  const [showNotif, setShowNotif] = useState(false);
+  const [showActivityReminder, setShowActivityReminder] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(false);
-  
-  const skeletonTimer = useRef(null);
 
-  const fetchDashboardData = useCallback(async (signal) => {
-    setLoading(true);
+  const skeletonTimerRef = useRef(null);
+
+  /** Fetches dashboard summary from API. Falls back to static data on error. */
+  const fetchSummaryData = useCallback(async (signal) => {
+    setIsLoading(true);
     try {
       const data = await getActivitySummary(signal);
       setSummary({
-        totalCo2ThisWeek: data.totalCo2ThisWeek || 18.4,
-        totalCo2ThisMonth: data.totalCo2ThisMonth || 76.2,
-        savedVsAverage: data.savedVsAverage || 16.8,
-        breakdown: data.breakdown || {
-          travel: 9.1,
-          food: 4.8,
-          energy: 3.2,
-          shopping: 1.3,
-        },
-        weeklyTrend: data.weeklyTrend || [3.1, 2.8, 3.2, 2.4, 2.9, 2.2, 1.8],
-        recentActivities: data.recentActivities || [],
+        totalCo2ThisWeek: data.totalCo2ThisWeek ?? FALLBACK_SUMMARY.totalCo2ThisWeek,
+        totalCo2ThisMonth: data.totalCo2ThisMonth ?? FALLBACK_SUMMARY.totalCo2ThisMonth,
+        savedVsAverage: data.savedVsAverage ?? FALLBACK_SUMMARY.savedVsAverage,
+        breakdown: data.breakdown ?? FALLBACK_SUMMARY.breakdown,
+        weeklyTrend: data.weeklyTrend ?? FALLBACK_SUMMARY.weeklyTrend,
+        recentActivities: data.recentActivities ?? [],
       });
     } catch (error) {
-      if (error.name === 'CanceledError' || error.message === 'canceled') return;
-      console.error("Failed to fetch summary data", error);
-      toast.error("Using fallback data while connection is re-established.");
-      setSummary({
-        totalCo2ThisWeek: 18.4,
-        totalCo2ThisMonth: 76.2,
-        savedVsAverage: 16.8,
-        breakdown: { travel: 9.1, food: 4.8, energy: 3.2, shopping: 1.3 },
-        weeklyTrend: [3.1, 2.8, 3.2, 2.4, 2.9, 2.2, 1.8],
-        recentActivities: [],
-      });
+      const isCancelled = error.name === 'CanceledError' || error.message === 'canceled';
+      if (isCancelled) return;
+
+      toast.error('Using fallback data while connection is re-established.');
+      setSummary(FALLBACK_SUMMARY);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, []);
 
-  const fetchProfileData = useCallback(async (signal) => {
+  /** Fetches profile data and determines if the activity reminder should show. */
+  const fetchProfileAndReminder = useCallback(async (signal) => {
     try {
-      const pd = await getUserProfile(signal);
-      setProfileData(pd);
-      const last = pd?.user?.lastActivityDate ? new Date(pd.user.lastActivityDate) : null;
-      const todayStr = new Date().toDateString();
-      if (!last || last.toDateString() !== todayStr) setShowNotif(true);
-    } catch (err) {
-      if (err.name !== 'CanceledError' && err.message !== 'canceled') {
-        console.error("Failed to fetch profile", err);
+      const profileResponse = await getUserProfile(signal);
+      setProfileData(profileResponse);
+
+      // Show reminder banner if the user hasn't logged anything today
+      const lastActivityDate = profileResponse?.user?.lastActivityDate;
+      setShowActivityReminder(!isToday(lastActivityDate));
+    } catch (error) {
+      const isCancelled = error.name === 'CanceledError' || error.message === 'canceled';
+      if (!isCancelled) {
+        console.error('Failed to fetch profile data', error);
       }
     }
   }, []);
 
   useEffect(() => {
-    try {
-      const userData = localStorage.getItem("ecostep_user");
-      if (userData) setUser(JSON.parse(userData));
-    } catch (e) {
-      console.error("Failed to parse user data", e);
-    }
+    setUser(readUserFromLocalStorage());
 
     const controller = new AbortController();
-    fetchDashboardData(controller.signal);
-    fetchProfileData(controller.signal);
-    
-    return () => controller.abort();
-  }, [fetchDashboardData, fetchProfileData]);
+    fetchSummaryData(controller.signal);
+    fetchProfileAndReminder(controller.signal);
 
-  // Skeleton delay
+    return () => controller.abort();
+  }, [fetchSummaryData, fetchProfileAndReminder]);
+
+  // Only show skeleton after a short delay to avoid flashing on fast connections
   useEffect(() => {
-    if (loading) {
-      skeletonTimer.current = setTimeout(() => setShowSkeleton(true), 200);
+    if (isLoading) {
+      skeletonTimerRef.current = setTimeout(() => setShowSkeleton(true), SKELETON_DELAY_MS);
     } else {
-      clearTimeout(skeletonTimer.current);
+      clearTimeout(skeletonTimerRef.current);
       setShowSkeleton(false);
     }
-    return () => clearTimeout(skeletonTimer.current);
-  }, [loading]);
+    return () => clearTimeout(skeletonTimerRef.current);
+  }, [isLoading]);
 
   return {
-    loading,
+    isLoading,
     summary,
     user,
     profileData,
-    showNotif,
+    showActivityReminder,
     showSkeleton,
-    setShowNotif,
-    refetch: fetchDashboardData
+    setShowActivityReminder,
+    refetch: fetchSummaryData,
   };
 }

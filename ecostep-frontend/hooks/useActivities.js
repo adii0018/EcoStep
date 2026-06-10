@@ -1,53 +1,62 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import api from "@/lib/api";
+// React core
+import { useState, useCallback } from 'react';
 
+// Services
+import {
+  getActivities,
+  logActivity,
+  deleteActivity as deleteActivityApi,
+} from '../services/activityService';
+
+/**
+ * Custom hook for all CRUD operations on user activities.
+ * Manages loading states and local cache for activity lists.
+ * @returns {{
+ *   activities: Array,
+ *   isLoadingActivities: boolean,
+ *   isLoadingSummary: boolean,
+ *   fetchActivities: Function,
+ *   addActivity: Function,
+ *   removeActivity: Function,
+ * }}
+ */
 export function useActivities() {
   const [activities, setActivities] = useState([]);
-  const [summary, setSummary] = useState(null);
-  const [loadingActivities, setLoadingActivities] = useState(false);
-  const [loadingSummary, setLoadingSummary] = useState(false);
+  const [isLoadingActivities, setIsLoadingActivities] = useState(false);
 
-  const fetchActivities = useCallback(async () => {
-    setLoadingActivities(true);
+  /** Fetches all activities, with an optional AbortController signal. */
+  const fetchActivities = useCallback(async (params = {}, signal) => {
+    setIsLoadingActivities(true);
     try {
-      const { data } = await api.get("/activities");
-      setActivities(data.activities || []);
+      const data = await getActivities(params, signal);
+      setActivities(data.activities ?? []);
     } finally {
-      setLoadingActivities(false);
+      setIsLoadingActivities(false);
     }
   }, []);
 
-  const fetchSummary = useCallback(async () => {
-    setLoadingSummary(true);
-    try {
-      const { data } = await api.get("/activities/summary");
-      setSummary(data);
-    } finally {
-      setLoadingSummary(false);
-    }
-  }, []);
-
-  const addActivity = useCallback(async (payload) => {
-    const { data } = await api.post("/activities", payload);
-    setActivities((prev) => [data.activity, ...prev]);
+  /** Logs a new activity and prepends it to the local list. */
+  const addActivity = useCallback(async (activityPayload) => {
+    const data = await logActivity(activityPayload);
+    setActivities((previousActivities) => [data.activity, ...previousActivities]);
     return data.activity;
   }, []);
 
-  const deleteActivity = useCallback(async (id) => {
-    await api.delete(`/activities/${id}`);
-    setActivities((prev) => prev.filter((a) => a._id !== id));
+  /** Deletes an activity by ID and removes it from the local list. */
+  const removeActivity = useCallback(async (activityId) => {
+    await deleteActivityApi(activityId);
+    setActivities((previousActivities) =>
+      previousActivities.filter((activity) => activity._id !== activityId)
+    );
   }, []);
 
   return {
     activities,
-    summary,
-    loadingActivities,
-    loadingSummary,
+    isLoadingActivities,
     fetchActivities,
-    fetchSummary,
     addActivity,
-    deleteActivity,
+    removeActivity,
   };
 }
