@@ -42,7 +42,7 @@ export default function LoginForm({ onError }) {
         router.push("/dashboard");
       }, 500);
     } catch (error) {
-      const message = error.response?.data?.message || "Invalid credentials. Please try again.";
+      const message = error.response?.data?.error || (error.response?.data?.errors && error.response.data.errors[0]?.message) || error.response?.data?.message || "Invalid credentials. Please try again.";
       toast.error(message);
       if (onError) onError();
     }

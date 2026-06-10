@@ -93,7 +93,7 @@ export default function RegisterForm({ onError }) {
         router.push("/dashboard");
       }, 500);
     } catch (error) {
-      const message = error.response?.data?.message || "Something went wrong. Please try again.";
+      const message = error.response?.data?.error || (error.response?.data?.errors && error.response.data.errors[0]?.message) || error.response?.data?.message || "Something went wrong. Please try again.";
       toast.error(message);
       if (onError) onError();
     }
