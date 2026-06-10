@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
@@ -45,6 +45,8 @@ export default function DashboardClient() {
   const [user, setUser] = useState(null);
   const [profileData, setProfileData] = useState(null);
   const [showNotif, setShowNotif] = useState(false);
+  const [showSkeleton, setShowSkeleton] = useState(false);
+  const skeletonTimer = useRef(null);
 
   useEffect(() => {
     // Get user from localStorage
@@ -134,9 +136,19 @@ export default function DashboardClient() {
     });
   };
 
-  if (loading) {
-    return <DashboardSkeleton />;
-  }
+  // Only show skeleton after 200 ms — avoids flash on fast loads
+  useEffect(() => {
+    if (loading) {
+      skeletonTimer.current = setTimeout(() => setShowSkeleton(true), 200);
+    } else {
+      clearTimeout(skeletonTimer.current);
+      setShowSkeleton(false);
+    }
+    return () => clearTimeout(skeletonTimer.current);
+  }, [loading]);
+
+  if (loading && showSkeleton) return <DashboardSkeleton />;
+  if (loading && !showSkeleton) return null;
 
   return (
     <div className="space-y-6 pb-12 pt-4 md:pt-0">
