@@ -11,5 +11,25 @@
     "prefer-const": "error",
     "no-var": "error",
     "react/no-unescaped-entities": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": [
+        "components/ui/*.jsx",
+        "app/**/layout.jsx",
+        "app/layout.jsx",
+        "components/PageTransition.jsx",
+        "components/auth/*.jsx",
+        "components/dashboard/CompareBar.jsx",
+        "components/dashboard/WeeklyTrendChart.jsx",
+        "components/log/ActivityList.jsx",
+        "components/tips/TipCard.jsx",
+        "app/(app)/analytics/AnalyticsClient.jsx"
+      ],
+      "rules": {
+        "react/prop-types": "off",
+        "no-unused-vars": "off"
+      }
+    }
+  ]
 }

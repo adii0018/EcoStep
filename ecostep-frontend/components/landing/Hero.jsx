@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Play, BarChart, Leaf, Target } from "lucide-react";
+import { ArrowRight, Play, BarChart, Leaf } from "lucide-react";
 
 export default function Hero() {
   const containerVariants = {

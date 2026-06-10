@@ -31,7 +31,7 @@ function calculateBarWidthPercentage(value, maxValue) {
 
 // ─── Sub-Components ───────────────────────────────────────────────────────────
 
-function ComparisonRow({ title, labelValue, diffPercentage, diffLabel, thisMonthValue, compareValue, barColorClass, barBgClass }) {
+function ComparisonRow({ title, labelValue, diffPercentage, diffLabel, thisMonthValue, compareValue, barBgClass }) {
   return (
     <div>
       <div className="flex justify-between items-end mb-1">
@@ -63,7 +63,6 @@ ComparisonRow.propTypes = {
   diffLabel: PropTypes.string,
   thisMonthValue: PropTypes.number.isRequired,
   compareValue: PropTypes.number.isRequired,
-  barColorClass: PropTypes.string,
   barBgClass: PropTypes.string.isRequired,
 };
 

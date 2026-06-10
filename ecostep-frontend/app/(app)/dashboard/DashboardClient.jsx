@@ -143,15 +143,15 @@ export default function DashboardClient() {
     refetch,
   } = useDashboard();
 
+  const handleDismissReminder = useCallback(() => {
+    setShowActivityReminder(false);
+  }, [setShowActivityReminder]);
+
   if (isLoading && showSkeleton) return <DashboardSkeleton />;
   if (isLoading) return null;
   if (!summary) return null;
 
   const displayName = user?.name?.split(' ')[0] ?? 'eco warrior';
-
-  const handleDismissReminder = useCallback(() => {
-    setShowActivityReminder(false);
-  }, [setShowActivityReminder]);
 
   return (
     <div className="space-y-6 pb-12 pt-4 md:pt-0">

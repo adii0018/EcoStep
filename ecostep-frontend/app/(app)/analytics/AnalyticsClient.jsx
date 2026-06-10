@@ -2,8 +2,9 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Loader2, BarChart2, TrendingDown, TrendingUp, Globe } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { Loader2, BarChart2, Globe } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import PropTypes from "prop-types";
 import api from "@/lib/api";
 
 const CATEGORY_COLORS = { travel: "#60a5fa", food: "#fb923c", energy: "#facc15", shopping: "#c084fc" };
@@ -17,6 +18,12 @@ const CustomBarTooltip = ({ active, payload, label }) => {
     </div>
   );
   return null;
+};
+
+CustomBarTooltip.propTypes = {
+  active: PropTypes.bool,
+  payload: PropTypes.array,
+  label: PropTypes.string,
 };
 
 export default function AnalyticsClient() {
