@@ -1,20 +1,17 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import axios from "axios";
-import Cookies from "js-cookie";
-import { toast } from "sonner";
 import Link from "next/link";
 import { PlusCircle, Lightbulb, Bell, Star, Flame } from "lucide-react";
 import dynamic from "next/dynamic";
+import PropTypes from 'prop-types';
 
 import DashboardSkeleton from "@/components/dashboard/DashboardSkeleton";
 import MetricCards from "@/components/dashboard/MetricCards";
 import WeeklyChallenge from "@/components/dashboard/WeeklyChallenge";
 import CompareSection from "@/components/dashboard/CompareSection";
 import RecentActivity from "@/components/dashboard/RecentActivity";
+import { useDashboard } from "@/hooks/useDashboard";
 
-// Lazy load heavy chart components
 const WeeklyTrendChart = dynamic(
   () => import("@/components/dashboard/WeeklyTrendChart"),
   {
@@ -40,97 +37,16 @@ const BreakdownChart = dynamic(
 );
 
 export default function DashboardClient() {
-  const [loading, setLoading] = useState(true);
-  const [summary, setSummary] = useState(null);
-  const [user, setUser] = useState(null);
-  const [profileData, setProfileData] = useState(null);
-  const [showNotif, setShowNotif] = useState(false);
-  const [showSkeleton, setShowSkeleton] = useState(false);
-  const skeletonTimer = useRef(null);
-
-  useEffect(() => {
-    // Get user from localStorage
-    try {
-      const userData = localStorage.getItem("ecostep_user");
-      if (userData) {
-        setUser(JSON.parse(userData));
-      }
-    } catch (e) {
-      console.error("Failed to parse user data", e);
-    }
-
-    const controller = new AbortController();
-    fetchDashboardData(controller.signal);
-    
-    // Fetch profile for EcoPoints + streak (async IIFE)
-    (async () => {
-      try {
-        const token = Cookies.get("ecostep_token");
-        const { data: pd } = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL || "https://ecostep-backend.onrender.com/api"}/users/profile`,
-          { 
-            headers: { Authorization: `Bearer ${token}` },
-            signal: controller.signal 
-          }
-        );
-        setProfileData(pd);
-        // Show notification if last activity was NOT today
-        const last = pd?.user?.lastActivityDate ? new Date(pd.user.lastActivityDate) : null;
-        const todayStr = new Date().toDateString();
-        if (!last || last.toDateString() !== todayStr) setShowNotif(true);
-      } catch (err) {
-        if (err.name !== 'CanceledError' && err.message !== 'canceled') {
-          console.error("Failed to fetch profile", err);
-        }
-      }
-    })();
-
-    return () => controller.abort();
-  }, []);
-
-  const fetchDashboardData = async (signal) => {
-    setLoading(true);
-    try {
-      const token = Cookies.get("ecostep_token");
-      const { data } = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL || "https://ecostep-backend.onrender.com/api"}/activities/summary`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          signal,
-        }
-      );
-
-      // Merge with default/mock structure in case backend doesn't provide all fields yet
-      setSummary({
-        totalCo2ThisWeek: data.totalCo2ThisWeek || 18.4,
-        totalCo2ThisMonth: data.totalCo2ThisMonth || 76.2,
-        savedVsAverage: data.savedVsAverage || 16.8,
-        breakdown: data.breakdown || {
-          travel: 9.1,
-          food: 4.8,
-          energy: 3.2,
-          shopping: 1.3,
-        },
-        weeklyTrend: data.weeklyTrend || [3.1, 2.8, 3.2, 2.4, 2.9, 2.2, 1.8],
-        recentActivities: data.recentActivities || [], // Assuming backend might return this or we fall back to empty
-      });
-    } catch (error) {
-      if (error.name === 'CanceledError' || error.message === 'canceled') return;
-      console.error("Failed to fetch summary data", error);
-      toast.error("Using fallback data while connection is re-established.");
-      // Fallback data so the premium UI still renders completely for demo
-      setSummary({
-        totalCo2ThisWeek: 18.4,
-        totalCo2ThisMonth: 76.2,
-        savedVsAverage: 16.8,
-        breakdown: { travel: 9.1, food: 4.8, energy: 3.2, shopping: 1.3 },
-        weeklyTrend: [3.1, 2.8, 3.2, 2.4, 2.9, 2.2, 1.8],
-        recentActivities: [],
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    loading,
+    summary,
+    user,
+    profileData,
+    showNotif,
+    showSkeleton,
+    setShowNotif,
+    refetch
+  } = useDashboard();
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -149,19 +65,9 @@ export default function DashboardClient() {
     });
   };
 
-  // Only show skeleton after 200 ms — avoids flash on fast loads
-  useEffect(() => {
-    if (loading) {
-      skeletonTimer.current = setTimeout(() => setShowSkeleton(true), 200);
-    } else {
-      clearTimeout(skeletonTimer.current);
-      setShowSkeleton(false);
-    }
-    return () => clearTimeout(skeletonTimer.current);
-  }, [loading]);
-
   if (loading && showSkeleton) return <DashboardSkeleton />;
   if (loading && !showSkeleton) return null;
+  if (!summary) return null;
 
   return (
     <div className="space-y-6 pb-12 pt-4 md:pt-0">
@@ -241,9 +147,11 @@ export default function DashboardClient() {
 
       {/* Row 5: Recent Activity (100%) */}
       <RecentActivity
-        activities={summary.recentActivities}
-        onDeleted={fetchDashboardData}
+        activities={summary.recentActivities || []}
+        onDeleted={() => refetch(new AbortController().signal)}
       />
     </div>
   );
 }
+
+DashboardClient.propTypes = {};

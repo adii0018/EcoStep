@@ -2,7 +2,6 @@ import request from 'supertest';
 import mongoose from 'mongoose';
 import { app } from '../server.js';
 import User from '../models/User.js';
-import Activity from '../models/Activity.js';
 import jwt from 'jsonwebtoken';
 
 let token;

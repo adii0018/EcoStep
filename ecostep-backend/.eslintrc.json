@@ -5,8 +5,9 @@
     "sourceType": "module"
   },
   "rules": {
-    "no-console": "off",
-    "no-unused-vars": ["error", { "argsIgnorePattern": "^next$" }],
-    "prefer-const": "error"
+    "no-console": "warn",
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^(next|req|res|err)$" }],
+    "prefer-const": "error",
+    "no-var": "error"
   }
 }
