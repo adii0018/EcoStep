@@ -7,29 +7,35 @@ import api from "@/lib/api";
 import TipCard from "@/components/tips/TipCard";
 import { Button } from "@/components/ui/button";
 
-const FALLBACK_TIPS = [
-  {
-    title: "Switch to public transport",
-    description:
-      "Taking the metro or bus instead of a petrol car can cut your travel emissions by up to 80%. Try replacing 3 car trips a week with public transit.",
-    savingKg: 15.0,
-    icon: "🚇",
-  },
-  {
-    title: "Reduce meat consumption",
-    description:
-      "Swapping two beef or chicken meals a week for vegetarian alternatives saves around 10 kg CO₂ per month. Legumes and seasonal vegetables are great protein sources.",
-    savingKg: 10.0,
-    icon: "🥗",
-  },
-  {
-    title: "Optimise home electricity use",
-    description:
-      "Turn off appliances on standby, switch to LED bulbs, and use energy-efficient settings on your AC. Small changes can reduce electricity emissions by 15–20%.",
-    savingKg: 8.0,
-    icon: "💡",
-  },
+// Large pool — 3 random tips are picked on every refresh
+const TIPS_POOL = [
+  { title: "Switch to public transport", description: "Taking the metro or bus instead of a petrol car cuts travel emissions by up to 80%. Try replacing 3 car trips a week with public transit.", savingKg: 15.0, icon: "🚇" },
+  { title: "Reduce meat consumption", description: "Swapping two beef meals a week for vegetarian alternatives saves ~10 kg CO₂ per month. Lentils, chickpeas and paneer are great protein swaps.", savingKg: 10.0, icon: "🥗" },
+  { title: "Optimise home electricity", description: "Turn off appliances on standby, switch to LED bulbs, and use eco-mode on your AC. Small habits can cut electricity emissions by 15–20%.", savingKg: 8.0, icon: "💡" },
+  { title: "Cycle for short trips", description: "Trips under 3 km by cycle instead of a two-wheeler save ~0.5 kg CO₂ each. Cycling 5 such trips a week adds up to 10 kg saved per month.", savingKg: 10.0, icon: "🚲" },
+  { title: "Eat seasonal & local produce", description: "Seasonal fruits and vegetables require no cold-chain transport. Buying from local farmers markets can halve the food-mile footprint of your meals.", savingKg: 5.5, icon: "🛒" },
+  { title: "Wash clothes in cold water", description: "90% of a washing machine's energy goes to heating water. Switching to cold washes saves ~0.6 kg CO₂ per load — that's ~7 kg a month for daily washes.", savingKg: 7.0, icon: "🧺" },
+  { title: "Plant-based meal once a day", description: "Even one plant-based meal daily instead of a meat-based one can reduce your annual carbon footprint by 0.5 tonnes CO₂. Start with dal or sabzi substitutes.", savingKg: 12.0, icon: "🌱" },
+  { title: "Air-dry clothes instead of dryer", description: "A tumble dryer uses ~2.5 kWh per cycle. India's sunny climate makes air-drying a zero-emission alternative — saving up to 5 kg CO₂ a week.", savingKg: 5.0, icon: "☀️" },
+  { title: "Unplug chargers when not in use", description: "Phone chargers, TV set-top boxes and wifi routers on standby consume phantom power. Unplugging them saves ~3–5 kWh per month (~2.5 kg CO₂).", savingKg: 2.5, icon: "🔌" },
+  { title: "Opt for a reusable water bottle", description: "A single-use plastic bottle takes 0.083 kg CO₂ to produce. Using a steel bottle and refilling it prevents ~2.5 kg CO₂ monthly for a daily drinker.", savingKg: 2.5, icon: "🍶" },
+  { title: "Carpool to work", description: "Sharing your car commute with just one colleague halves your per-trip emissions. Two colleagues means two-thirds savings — roughly 6 kg CO₂ a week.", savingKg: 6.0, icon: "🚗" },
+  { title: "Reduce dairy consumption", description: "Dairy farming is emission-intensive. Swapping cow's milk for oat or soy milk in your daily chai or coffee saves ~1.5 kg CO₂ per litre consumed.", savingKg: 4.5, icon: "🥛" },
+  { title: "Use a pressure cooker", description: "Pressure cookers reduce cooking time by up to 70%, cutting the gas or electricity needed. Cooking dal, rice and sabzi in one saves ~3 kg CO₂ monthly.", savingKg: 3.0, icon: "🍲" },
+  { title: "Buy second-hand or rent clothing", description: "Fashion is responsible for 10% of global emissions. Buying pre-owned clothes, or renting for events, can cut a garment's carbon cost by up to 82%.", savingKg: 8.0, icon: "👕" },
+  { title: "Switch to e-statements & paperless billing", description: "A single paper bill's lifecycle (paper, printing, transport, disposal) emits ~0.25 kg CO₂. Going digital across 10 accounts saves ~2.5 kg per month.", savingKg: 2.5, icon: "📱" },
+  { title: "Plant a tree or support reforestation", description: "A mature tree absorbs ~21 kg CO₂ per year. Planting one via platforms like Grow-Trees.com offsets your footprint affordably while restoring biodiversity.", savingKg: 21.0, icon: "🌳" },
+  { title: "Reduce food waste", description: "About 8% of global emissions come from food waste. Planning meals, using leftovers creatively and composting scraps can save ~4 kg CO₂ per household monthly.", savingKg: 4.0, icon: "🍱" },
+  { title: "Choose energy-efficient appliances", description: "BEE 5-star rated ACs, refrigerators and fans use 20–40% less electricity. The upfront cost pays back in 2–3 years through lower bills and 15 kg less CO₂ monthly.", savingKg: 15.0, icon: "⭐" },
+  { title: "Take shorter showers", description: "A 10-minute hot shower uses ~0.5 kWh to heat water. Cutting showers to 5 minutes saves ~7 kg CO₂ per month per person in an electric-geyser household.", savingKg: 7.0, icon: "🚿" },
+  { title: "Work from home when possible", description: "Eliminating one 20 km commute per week saves ~1.8 kg CO₂ per trip by car. Four WFH days a month cuts ~7 kg CO₂ and saves fuel costs too.", savingKg: 7.0, icon: "🏠" },
 ];
+
+/** Pick n unique random items from an array */
+function pickRandom(arr, n) {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, n);
+}
 
 export default function TipsPageClient() {
   const [tips, setTips] = useState(null);
@@ -40,7 +46,7 @@ export default function TipsPageClient() {
     setLoading(true);
     try {
       const { data } = await api.post("/insights");
-      setTips(data.tips || FALLBACK_TIPS);
+      setTips(data.tips || pickRandom(TIPS_POOL, 3));
       setSource(data.source);
       if (data.source === "ai") {
         toast.success("AI tips generated! 🌿");
@@ -48,13 +54,14 @@ export default function TipsPageClient() {
         toast.info("Showing general tips — log more activities for personalised advice.");
       }
     } catch {
-      setTips(FALLBACK_TIPS);
+      setTips(pickRandom(TIPS_POOL, 3));
       setSource("fallback");
       toast.error("Could not reach AI. Showing general tips.");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="space-y-6 pt-4 md:pt-0">

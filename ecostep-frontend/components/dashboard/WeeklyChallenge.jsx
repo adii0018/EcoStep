@@ -21,7 +21,7 @@ export default function WeeklyChallenge() {
   };
 
   return (
-    <motion.div variants={itemVariants} initial="hidden" animate="show" className="h-[300px] bg-zinc-900/80 backdrop-blur border border-zinc-800 rounded-2xl p-6 flex flex-col items-center justify-between relative overflow-hidden group">
+    <motion.div variants={itemVariants} initial="hidden" animate="show" className="h-full min-h-[280px] bg-zinc-900/80 backdrop-blur border border-zinc-800 rounded-2xl p-6 flex flex-col items-center justify-between relative overflow-hidden group">
       {/* Background glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
       
