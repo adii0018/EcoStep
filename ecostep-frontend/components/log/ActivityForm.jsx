@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select';
 
 // Utils / Constants
-import { getTypesForCategory, calculateCO2 } from '@/utils/carbon-factors';
+import { getTypesForCategory, calculateCO2 } from '@/lib/carbonFactors';
 import { APP_CONFIG } from '@/constants/appConfig';
 
 // ─── Static Constants (Memory Optimization) ───────────────────────────────────
