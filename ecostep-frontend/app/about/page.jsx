@@ -13,7 +13,7 @@ export default function AboutPage() {
         
         <div className="bg-white/5 backdrop-blur-md border border-white/10 p-8 rounded-3xl">
           <p className="text-xl text-zinc-400 mb-4">We're still working on this page.</p>
-          <p className="text-zinc-500">Check back soon for updates regarding our about.</p>
+          <p className="text-zinc-500">Check back soooon for updates regarding our about.</p>
         </div>
 
         <div className="pt-8">
