@@ -18,7 +18,7 @@ export default function AboutPage() {
 
         <div className="pt-8">
           <Link href="/" className="inline-flex items-center gap-2 text-zinc-400 hover:text-emerald-400 transition-colors font-medium">
-            <ArrowLeft className="w-4 h-4" /> Back to home
+            <ArrowLeft className="w-4 h-4" /> Back to homee
           </Link>
         </div>
       </div>
