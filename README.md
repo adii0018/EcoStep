@@ -1,6 +1,6 @@
 <div align="center">
   
-# 🌱 EcoStep
+# 🌱 EcoStep 🤍
 
 **Your AI-Powered Personal Carbon Footprint Tracker**
 
