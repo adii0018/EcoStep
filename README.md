@@ -19,7 +19,7 @@ EcoStep is a beautifully designed, full-stack web application that helps users t
 
 ---
 
-## ✨ Key Features
+## ✨ Key Featuress
 
 - **📊 Comprehensive Carbon Tracking:** Log daily activities across Travel, Food, Energy, and Shopping with region-specific (India & Global) emission factors.
 - **🤖 AI Sustainability Tips:** Integrates with Anthropic's Claude AI to generate highly personalized, actionable advice based on your recent activity history.
