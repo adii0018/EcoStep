@@ -1,6 +1,6 @@
 <div align="center">
   
-# 🌱 EcoStep
+# 🌱 EcoStep 🤍
 
 **Your AI-Powered Personal Carbon Footprint Tracker**
 
@@ -11,7 +11,7 @@
 [![Anthropic Claude](https://img.shields.io/badge/AI-Claude_3.5_Sonnet-purple)](https://anthropic.com/)
 [![Jest](https://img.shields.io/badge/Testing-Jest_%2B_RTL-C21325?logo=jest)](https://jestjs.io/)
 
-EcoStep is a beautifully designed, full-stack web application that helps users track, understand, and reduce their daily carbon emissions. Through gamification and AI-driven insights, EcoStep makes sustainability engaging and actionable.
+EcoStep is a beautifully designed, full-stack web application that helps users track, understand, and reduce their daily carbon emissions. Through gamification and AI-driven insights, EcoStep makes sustainability engaging and actionable..
 
 [View Live Demo](https://ecostep0018.vercel.app/) • [Report Bug](https://github.com/adii0018/EcoStep/issues) • [Request Feature](https://github.com/adii0018/EcoStep/issues)
 
@@ -19,7 +19,7 @@ EcoStep is a beautifully designed, full-stack web application that helps users t
 
 ---
 
-## ✨ Key Features
+## ✨ Key Featuress
 
 - **📊 Comprehensive Carbon Tracking:** Log daily activities across Travel, Food, Energy, and Shopping with region-specific (India & Global) emission factors.
 - **🤖 AI Sustainability Tips:** Integrates with Anthropic's Claude AI to generate highly personalized, actionable advice based on your recent activity history.
