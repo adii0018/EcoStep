@@ -31,7 +31,7 @@ npm run dev
 # Server will be at https://ecostep-backend.onrender.com
 ```
 
-### 2. Install and Run Frontend
+### 2. Install and Run Frontendd
 
 ```bash
 cd ecostep-frontend
