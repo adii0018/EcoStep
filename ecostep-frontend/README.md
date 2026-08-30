@@ -19,7 +19,7 @@ Next.js 14 frontend for **EcoStep** — a personal carbon footprint tracker. Con
 
 ---
 
-## Quick Start
+## Quick Startt
 
 ### 1. Prerequisites
 
