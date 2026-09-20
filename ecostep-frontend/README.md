@@ -87,7 +87,7 @@ ecostep-frontend/
 - **`/register`** — Name/email/password, same cookie flow
 - **`/dashboard`** — KPI cards, breakdown chart, compare bar, recent activities
 - **`/log`** — Activity form with live CO2 preview + full activity list with delete
-- **`/tips`** — AI tips via Claude API, weekly challenge card
+- **`/tips`** — AI tips via Claude API, weekly challenge card...
 
 ## Available Scripts
 
