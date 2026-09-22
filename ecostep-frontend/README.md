@@ -1,6 +1,6 @@
 # 🌱 EcoStep Frontend
 
-Next.js 14 frontend for **EcoStep** — a personal carbon footprint tracker. Connects to the Express.js backend at `https://ecostep-backend.onrender.com`.
+Next.js 14 frontend for **EcoStep** — a personal carbon footprint tracker. Connects to the Express.js backend at `https://ecostep-backend.onrender.com`..
 
 ---
 
